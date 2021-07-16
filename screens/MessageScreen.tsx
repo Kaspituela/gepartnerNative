@@ -1,20 +1,17 @@
 import * as React from 'react';
-import { Button, StyleSheet, FlatList } from 'react-native';
-
-import EditScreenInfo from '../components/EditScreenInfo';
-import { Text, View } from '../components/Themed';
+import { FlatList, StyleSheet } from 'react-native';
 
 import {
-  Container,
   Card,
-  UserInfo,
-  UserImgWrapper,
+  Container,
+  MessageText,
+  PostTime,
+  TextSection,
   UserImg,
+  UserImgWrapper,
+  UserInfo,
   UserInfoText,
   UserName,
-  PostTime,
-  MessageText,
-  TextSection,
 } from '../styles/MessageStyle';
 
 const Messages = [

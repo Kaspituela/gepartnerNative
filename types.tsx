@@ -11,6 +11,7 @@ export type RootStackParamList = {
 export type BottomTabParamList = {
   Mensajes: undefined;
   Chat: undefined;
+  Idiomas: undefined;
 };
 
 export type TabOneParamList = {
@@ -19,4 +20,8 @@ export type TabOneParamList = {
 
 export type TabTwoParamList = {
   ChatScreen: undefined;
+};
+
+export type TabThreeParamList = {
+  LanguageScreen: undefined;
 };

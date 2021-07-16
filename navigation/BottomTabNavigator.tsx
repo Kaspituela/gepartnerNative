@@ -2,7 +2,6 @@
  * Learn more about createBottomTabNavigator:
  * https://reactnavigation.org/docs/bottom-tab-navigator
  */
-
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -10,9 +9,11 @@ import * as React from 'react';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
-import MessageScreen from '../screens/MessageScreen';
 import ChatScreen from '../screens/ChatScreen';
-import { BottomTabParamList, TabOneParamList, TabTwoParamList } from '../types';
+import LanguageScreen from '../screens/LanguageScreen';
+import MessageScreen from '../screens/MessageScreen';
+import { BottomTabParamList, TabOneParamList, TabThreeParamList, TabTwoParamList } from '../types';
+
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -27,14 +28,22 @@ export default function BottomTabNavigator() {
         name="Mensajes"
         component={MessageNavigator}
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="ios-code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="chatbox-ellipses-outline" color={color} />,
         }}
       />
       <BottomTab.Screen
         name="Chat"
         component={ChatNavigator}
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="ios-code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="chatbubbles-outline" color={color} />,
+        }}
+      />
+
+      <BottomTab.Screen
+        name="Idiomas"
+        component={LanguageNavigator}
+        options={{
+          tabBarIcon: ({ color }) => <TabBarIcon name="build-outline" color={color} />,
         }}
       />
     </BottomTab.Navigator>
@@ -74,5 +83,19 @@ function ChatNavigator() {
         options={{ headerTitle: 'Chat' }}
       />
     </TabTwoStack.Navigator>
+  );
+}
+
+const TabThreeStack = createStackNavigator<TabThreeParamList>();
+
+function LanguageNavigator() {
+  return (
+    <TabThreeStack.Navigator>
+      <TabThreeStack.Screen
+        name="LanguageScreen"
+        component={LanguageScreen}
+        options={{ headerTitle: 'Idiomas' }}
+      />
+    </TabThreeStack.Navigator>
   );
 }
