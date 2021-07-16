@@ -14,14 +14,12 @@ export type BottomTabParamList = {
   Idiomas: undefined;
 };
 
-export type TabOneParamList = {
+export type ChatTabParamList = {
   MessageScreen: undefined;
+  Chat: {userName: string};
 };
 
-export type TabTwoParamList = {
-  ChatScreen: undefined;
-};
 
-export type TabThreeParamList = {
+export type LanguageTabParamList = {
   LanguageScreen: undefined;
 };

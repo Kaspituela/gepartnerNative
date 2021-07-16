@@ -57,14 +57,14 @@ const Messages = [
     },
   ];
 
-export default function MessageScreen() {
+export default function MessageScreen({navigation}: {navigation: any}) {
   return (
     <Container>
       <FlatList 
         data={Messages}
         keyExtractor={item=>item.id}
         renderItem={({item}) => (
-          <Card>
+          <Card onPress={() => navigation.navigate('Chat', {userName: item.userName})}>
             <UserInfo>
               <UserImgWrapper>
                 <UserImg source={item.userImg} />

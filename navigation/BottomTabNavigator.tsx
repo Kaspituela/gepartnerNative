@@ -12,7 +12,7 @@ import useColorScheme from '../hooks/useColorScheme';
 import ChatScreen from '../screens/ChatScreen';
 import LanguageScreen from '../screens/LanguageScreen';
 import MessageScreen from '../screens/MessageScreen';
-import { BottomTabParamList, TabOneParamList, TabThreeParamList, TabTwoParamList } from '../types';
+import { BottomTabParamList, ChatTabParamList, LanguageTabParamList} from '../types';
 
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
@@ -32,14 +32,6 @@ export default function BottomTabNavigator() {
         }}
       />
       <BottomTab.Screen
-        name="Chat"
-        component={ChatNavigator}
-        options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="chatbubbles-outline" color={color} />,
-        }}
-      />
-
-      <BottomTab.Screen
         name="Idiomas"
         component={LanguageNavigator}
         options={{
@@ -58,44 +50,38 @@ function TabBarIcon(props: { name: React.ComponentProps<typeof Ionicons>['name']
 
 // Each tab has its own navigation stack, you can read more about this pattern here:
 // https://reactnavigation.org/docs/tab-based-navigation#a-stack-navigator-for-each-tab
-const TabOneStack = createStackNavigator<TabOneParamList>();
+const ChatTab = createStackNavigator<ChatTabParamList>();
 
 function MessageNavigator() {
   return (
-    <TabOneStack.Navigator>
-      <TabOneStack.Screen
+    <ChatTab.Navigator>
+      <ChatTab.Screen
         name="MessageScreen"
         component={MessageScreen}
         options={{ headerTitle: 'Mensajes' }}
       />
-    </TabOneStack.Navigator>
+      <ChatTab.Screen
+      name="Chat"
+      component={ChatScreen}
+      options={({route}) => ({
+        title: route.params.userName,
+        headerBackTitleVisible: false,
+      })}
+    />
+    </ChatTab.Navigator>
   );
 }
 
-const TabTwoStack = createStackNavigator<TabTwoParamList>();
-
-function ChatNavigator() {
-  return (
-    <TabTwoStack.Navigator>
-      <TabTwoStack.Screen
-        name="ChatScreen"
-        component={ChatScreen}
-        options={{ headerTitle: 'Chat' }}
-      />
-    </TabTwoStack.Navigator>
-  );
-}
-
-const TabThreeStack = createStackNavigator<TabThreeParamList>();
+const LanguageTab = createStackNavigator<LanguageTabParamList>();
 
 function LanguageNavigator() {
   return (
-    <TabThreeStack.Navigator>
-      <TabThreeStack.Screen
+    <LanguageTab.Navigator>
+      <LanguageTab.Screen
         name="LanguageScreen"
         component={LanguageScreen}
         options={{ headerTitle: 'Idiomas' }}
       />
-    </TabThreeStack.Navigator>
+    </LanguageTab.Navigator>
   );
 }
