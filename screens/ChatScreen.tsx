@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useEffect } from 'react'
-import {ScrollView, Button, StyleSheet,View,Text} from 'react-native';
-import {Bubble, GiftedChat, Send} from 'react-native-gifted-chat';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Ionicons } from '@expo/vector-icons';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View } from 'react-native';
+import { Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 export default function ChatScreen() {
@@ -68,11 +68,11 @@ export default function ChatScreen() {
     return (
       <Send {...props}>
         <View>
-          <MaterialCommunityIcons
-            name="send-circle"
-            style={{marginBottom: 5, marginRight: 5}}
-            size={32}
-            color="#2e64e5"
+          <Ionicons
+            name="paper-plane-outline"
+            style={{marginBottom: 10, marginRight: 10}}
+            size={24}
+            color="#616161"
           />
         </View>
       </Send>
@@ -120,19 +120,21 @@ export default function ChatScreen() {
   )
 }
 
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//   },
-//   title: {
-//     fontSize: 20,
-//     fontWeight: 'bold',
-//   },
-//   separator: {
-//     marginVertical: 30,
-//     height: 1,
-//     width: '80%',
-//   },
-// });
+/*
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  separator: {
+    marginVertical: 30,
+    height: 1,
+    width: '80%',
+  },
+});
+*/
