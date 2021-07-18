@@ -5,6 +5,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native'
 import * as React from 'react';
 
 import Colors from '../constants/Colors';
@@ -17,7 +18,15 @@ import { BottomTabParamList, ChatTabParamList, LanguageTabParamList} from '../ty
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
-export default function BottomTabNavigator() {
+const getTabBarVisibility = (route:any) => {
+  const routeName = getFocusedRouteNameFromRoute(route);
+    const hideOnScreens = ['Chat'];
+    if(hideOnScreens.indexOf(routeName as string) > -1) return false;
+    return true;
+};
+
+
+export default function BottomTabNavigator(route: any) {
   const colorScheme = useColorScheme();
 
   return (
@@ -27,9 +36,10 @@ export default function BottomTabNavigator() {
       <BottomTab.Screen
         name="Mensajes"
         component={MessageNavigator}
-        options={{
+        options={({route}) => ({
+          tabBarVisible: getTabBarVisibility(route),
           tabBarIcon: ({ color }) => <TabBarIcon name="chatbox-ellipses-outline" color={color} />,
-        }}
+        })}
       />
       <BottomTab.Screen
         name="Idiomas"

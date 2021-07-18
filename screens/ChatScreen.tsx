@@ -1,9 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react'
-import { StyleSheet } from 'react-native';
+import {ScrollView, Button, StyleSheet,View,Text} from 'react-native';
 import {Bubble, GiftedChat, Send} from 'react-native-gifted-chat';
-
-import EditScreenInfo from '../components/EditScreenInfo';
-import { Text, View } from '../components/Themed';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 export default function ChatScreen() {
   const [messages, setMessages] = useState([]);
@@ -27,7 +26,7 @@ export default function ChatScreen() {
 	
 	setMessages(previousMessages => GiftedChat.append(previousMessages, messages)) // añade los mensajes del usuario en el chat
 
-	console.log(messages[0].text); // mensaje enviado por usuario, enviar a la API
+	console.log("1: ",messages); // mensaje enviado por usuario, enviar a la API
 
 	let usr_msj  = messages[0].text
 	const requestOptions = { 
@@ -55,8 +54,7 @@ export default function ChatScreen() {
 				avatar: 'https://placeimg.com/140/140/any',
 			},
 		} as any
-		
-		setMessages(messages => GiftedChat.append(openai_response, messages))
+		setMessages(messages => GiftedChat.append(messages,openai_response))
 		});
 	}
 	
@@ -66,6 +64,45 @@ export default function ChatScreen() {
 
   }, [])
 
+  const renderSend = (props:any) => {
+    return (
+      <Send {...props}>
+        <View>
+          <MaterialCommunityIcons
+            name="send-circle"
+            style={{marginBottom: 5, marginRight: 5}}
+            size={32}
+            color="#2e64e5"
+          />
+        </View>
+      </Send>
+    );
+  };
+
+  const renderBubble = (props:any) => {
+    return (
+      <Bubble
+        {...props}
+        wrapperStyle={{
+          right: {
+            backgroundColor: '#2e64e5',
+          },
+        }}
+        textStyle={{
+          right: {
+            color: '#fff',
+          },
+        }}
+      />
+    );
+  };
+
+  const scrollToBottomComponent = () => {
+    return(
+      <FontAwesome name='angle-double-down' size={22} color='#333' />
+    );
+  }
+
 
   return (
         <GiftedChat
@@ -74,6 +111,11 @@ export default function ChatScreen() {
       user={{
         _id: 1,
       }}
+      renderBubble={renderBubble}
+      alwaysShowSend
+      renderSend={renderSend}
+      scrollToBottom
+      scrollToBottomComponent={scrollToBottomComponent}
     />
   )
 }
