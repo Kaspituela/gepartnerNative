@@ -4,7 +4,10 @@ import { FlatList, StyleSheet } from 'react-native';
 import { Container, FlagImg, FlagImgWrapper, FlagInfo, FlagText } from '../styles/FlagStyle';
 import { Card, TextSection, UserName } from '../styles/MessageStyle';
 
-const Languages = [
+
+export default function LanguageScreen() {
+
+  const [Languages, swapLanguages] = useState([
     {
       id: '0',
       Lang: 'Español',
@@ -40,31 +43,23 @@ const Languages = [
       Lang: 'Italiano',
       FlagImg: require('../assets/flags/Italy-Flag-icon.png'),
     },
-  ];
+  ]);
 
-var id = 0;
-var lang = "";
+  function setLanguage(LangId: string, lang: string, flag: any) {
 
-function setLanguage(LangId: string) {
-  id = +LangId;
-  lang = Languages[+id].Lang
-  alert("id: " + id + ", lang: " + lang);
-}
+    var newLanguages = Languages.filter(item => item.id !== LangId);
+    newLanguages.unshift({ id: LangId, Lang: lang, FlagImg: flag });
+    swapLanguages(newLanguages);
+  }
 
-/*
-function getLanguage() {
-  alert("id: " + id + ", lang: " + lang);
-}
-*/
 
-export default function LanguageScreen() {
   return (
     <Container>
       <FlatList 
         data={Languages}
         keyExtractor={item=>item.id}
         renderItem={({item}) => (
-          <Card onPress={() => setLanguage(item.id)}>
+          <Card onPress={() => setLanguage(item.id, item.Lang, item.FlagImg)}>
             <FlagInfo>
               <FlagImgWrapper>
                 <FlagImg source={item.FlagImg} />
