@@ -17,11 +17,11 @@ import {
 const Messages = [
     {
       id: '1',
-      userName: 'Jenny Doe',
-      userImg: require('../assets/users/user-3.jpg'),
+      userName: 'Babbage',
+      userImg: require('../assets/users/robot-babbage.png'),
       messageTime: '4 mins ago',
       messageText:
-        'Hey there, this is my test for a post of my social app in React Native.',
+        'Chatea con Babbage!.',
     },
     {
       id: '2',
