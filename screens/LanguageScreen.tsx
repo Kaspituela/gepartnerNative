@@ -14,7 +14,7 @@ export default function LanguageScreen() {
       id: '0',
       Lang: 'Español',
       FlagImg: require('../assets/flags/Spain-Flag-icon.png'),
-      bgColor: 'white',
+      bgColor: '00bf4980',
     },
     {
       id: '1',
