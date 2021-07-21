@@ -34,7 +34,8 @@ export default function ChatScreen() {
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({
 				msg: usr_msj,
-				uid: 1234
+				uid: 1234,
+        lng: "english"
 		})
 	}
 	try { // se envia mensaje a la api
@@ -55,6 +56,22 @@ export default function ChatScreen() {
 			},
 		} as any
 		setMessages(messages => GiftedChat.append(messages,openai_response))
+
+    if (data.correction != ""){ // si existe una corrección, la ia responde con lo corregido
+      const string = "La corrección de tu mensaje es: ";
+      let correction_openai = string.concat(data.correction);
+      let openai_correction = { // acá mensaje con corrección si es necesario
+        _id: Math.floor(Math.random() * 10000) + 1,
+        text: correction_openai,
+        createdAt: new Date(),
+        user: {
+          _id: 2,
+          name: 'React Native',
+          avatar: require('../assets/users/robot-babbage.png'),
+        },
+      } as any
+      setMessages(messages => GiftedChat.append(messages,openai_correction))
+    }
 		});
 	}
 	
