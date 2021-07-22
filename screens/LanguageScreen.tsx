@@ -15,56 +15,63 @@ export default function LanguageScreen() {
       Lang: 'Español',
       FlagImg: require('../assets/flags/Spain-Flag-icon.png'),
       bgColor: '00bf4980',
+      SetLang: 'spanish',
     },
     {
       id: '1',
       Lang: 'English',
       FlagImg: require('../assets/flags/United-Kingdom-Flag-icon.png'),
       bgColor: 'white',
+      SetLang: 'english',
     },
     {
       id: '2',
       Lang: 'Français',
       FlagImg: require('../assets/flags/France-Flag-icon.png'),
       bgColor: 'white',
+      SetLang: 'french',
     },
     {
       id: '3',
       Lang: 'Deutsche',
       FlagImg: require('../assets/flags/Germany-Flag-icon.png'),
       bgColor: 'white',
+      SetLang: 'german',
     },
     {
       id: '4',
       Lang: 'Suomi',
       FlagImg: require('../assets/flags/Finland-Flag-icon.png'),
       bgColor: 'white',
+      SetLang: 'finnish',
     },
     {
       id: '5',
       Lang: 'Pусский',
       FlagImg: require('../assets/flags/Russia-Flag-icon.png'),
       bgColor: 'white',
+      SetLang: 'russian',
     },
     {
       id: '6',
       Lang: 'Italiano',
       FlagImg: require('../assets/flags/Italy-Flag-icon.png'),
       bgColor: 'white',
+      SetLang: 'italian',
     },
   ]);
 
-  function setLanguage(LangId: string, lang: string, flag: any) {
+  function setLanguage(LangId: string, lang: string, flag: any, setLang: string) {
 
     var index: number = +LangId;
 
     var newLanguages = Languages;
     var current = newLanguages[selected];
     
-    newLanguages[selected] = { id: current.id, Lang: current.Lang, FlagImg: current.FlagImg, bgColor: 'white' }
+    newLanguages[selected] = { id: current.id, Lang: current.Lang, FlagImg: current.FlagImg, bgColor: 'white' , SetLang: current.SetLang}
     changeSelected(index);
     
-    newLanguages[index] = { id: LangId, Lang: lang, FlagImg: flag, bgColor: '#00bf4980' }
+    newLanguages[index] = { id: LangId, Lang: lang, FlagImg: flag, bgColor: '#00bf4980', SetLang: setLang }
     
     swapLanguages(newLanguages);
 
@@ -72,6 +79,8 @@ export default function LanguageScreen() {
     //newLanguages.sort((a, b) => (+a.id < +b.id ? -1 : 1));
     //newLanguages.unshift({ id: LangId, Lang: lang, FlagImg: flag });
     //swapLanguages(newLanguages);
+    global.language = setLang;
+    console.log(setLang)
   }
 
 
@@ -83,7 +92,7 @@ export default function LanguageScreen() {
         keyExtractor={item=>item.id}
         renderItem={({ item }) => (
           
-          <Card onPress={() => setLanguage(item.id, item.Lang, item.FlagImg)} style={{backgroundColor: item.bgColor}}>
+          <Card onPress={() => setLanguage(item.id, item.Lang, item.FlagImg, item.SetLang)} style={{backgroundColor: item.bgColor}}>
           
           
               <FlagInfo>

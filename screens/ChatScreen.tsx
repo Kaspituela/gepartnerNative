@@ -35,7 +35,7 @@ export default function ChatScreen() {
 		body: JSON.stringify({
 				msg: usr_msj,
 				uid: 1234,
-        lng: "english"
+        lng: global.language
 		})
 	}
 	try { // se envia mensaje a la api
@@ -44,7 +44,7 @@ export default function ChatScreen() {
 		.then(data => {
 			console.log(data)
 			console.log(messages)
-
+      console.log(global.language)
 		let openai_response = {
 			_id: Math.floor(Math.random() * 10000) + 1,
 			text: data.msg,
