@@ -8,18 +8,7 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    setMessages([
-      {
-        _id: 1,
-        text: 'Hello developer',
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: 'React Native',
-          avatar: require('../assets/users/robot-babbage.png'),
-        },
-      },
-    ])
+    setMessages([])
   }, [])
 
   const onSend = useCallback((messages = []) => {

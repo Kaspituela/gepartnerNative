@@ -23,38 +23,6 @@ const Messages = [
       messageText:
         'Chatea con Babbage!.',
     },
-    {
-      id: '2',
-      userName: 'John Doe',
-      userImg: require('../assets/users/user-1.jpg'),
-      messageTime: '2 hours ago',
-      messageText:
-        'Hey there, this is my test for a post of my social app in React Native.',
-    },
-    {
-      id: '3',
-      userName: 'Ken William',
-      userImg: require('../assets/users/user-4.jpg'),
-      messageTime: '1 hours ago',
-      messageText:
-        'Hey there, this is my test for a post of my social app in React Native.',
-    },
-    {
-      id: '4',
-      userName: 'Selina Paul',
-      userImg: require('../assets/users/user-6.jpg'),
-      messageTime: '1 day ago',
-      messageText:
-        'Hey there, this is my test for a post of my social app in React Native.',
-    },
-    {
-      id: '5',
-      userName: 'Christy Alex',
-      userImg: require('../assets/users/user-7.jpg'),
-      messageTime: '2 days ago',
-      messageText:
-        'Hey there, this is my test for a post of my social app in React Native.',
-    },
   ];
 
 export default function MessageScreen({navigation}: {navigation: any}) {
