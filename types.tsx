@@ -5,21 +5,28 @@
 
 export type RootStackParamList = {
   Root: undefined;
+  Language: undefined;
   NotFound: undefined;
 };
 
 export type BottomTabParamList = {
-  Mensajes: undefined;
   Chat: undefined;
-  Idiomas: undefined;
+  Capsulas: undefined;
+  Estadistica: undefined;
 };
 
-export type ChatTabParamList = {
-  MessageScreen: undefined;
-  Chat: {userName: string};
-};
-
-
-export type LanguageTabParamList = {
+export type LanguageParamList = {
   LanguageScreen: undefined;
+};
+
+export type ChatParamList = {
+  ChatScreen: undefined;
+};
+
+export type CapsulasParamList = {
+  CapsulasScreen: undefined;
+};
+
+export type EstadisticaParamList = {
+  EstadisticaScreen: undefined;
 };

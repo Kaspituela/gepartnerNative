@@ -8,28 +8,4 @@ import * as Linking from 'expo-linking';
 
 export default {
   prefixes: [Linking.makeUrl('/')],
-  config: {
-    screens: {
-      Root: {
-        screens: {
-          TabOne: {
-            screens: {
-              Message: 'Mensajes',
-            },
-          },
-          TabTwo: {
-            screens: {
-              Chat: 'Chat',
-            },
-          },
-          TabThree: {
-            screens: {
-              Languages: 'Idiomas',
-            },
-          },
-        },
-      },
-      NotFound: '*',
-    },
-  },
 };

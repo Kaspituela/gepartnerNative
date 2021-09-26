@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, StyleSheet, Button } from 'react-native';
 
 import { Card, Container, FlagImg, FlagImgWrapper, FlagInfo, FlagText, Language, TextSection } from '../styles/FlagStyle';
 
-export default function LanguageScreen() {
+export default function LanguageScreen({navigation}: {navigation: any}) {
 
   // El estado inicial esta en español por default, pero la idea seria poder guardar los 
   // ajustes del usuario para que se mantenga en memoria persistente
@@ -110,6 +110,10 @@ export default function LanguageScreen() {
               </FlagInfo>
           </Card>
         )}
+      />
+      <Button
+        onPress={() => navigation.navigate('Root')}
+        title="Continuar"
       />
 
     </Container>
