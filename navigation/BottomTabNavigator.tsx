@@ -14,6 +14,7 @@ import ChatScreen from '../screens/ChatScreen';
 import CapsulasScreen from '../screens/CapsulaScreen';
 import EstadisticaScreen from '../screens/EstadisticaScreen';
 import { BottomTabParamList, ChatParamList, CapsulasParamList, EstadisticaParamList} from '../types';
+import { Language } from '../styles/FlagStyle';
 
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
@@ -26,9 +27,10 @@ const getTabBarVisibility = (route:any) => {
 };
 
 
-export default function BottomTabNavigator(route: any) {
+export default function BottomTabNavigator({route}: {route: any}) {
   const colorScheme = useColorScheme();
-
+  const language = route.params.lang;
+  console.log(language);
   return (
     <BottomTab.Navigator
       initialRouteName="Chat"
@@ -40,6 +42,7 @@ export default function BottomTabNavigator(route: any) {
           tabBarVisible: getTabBarVisibility(route),
           tabBarIcon: ({ color }) => <TabBarIcon name="chatbox-ellipses-outline" color={color} />,
         })}
+        initialParams={{Lang: language}}
       />
       <BottomTab.Screen
         name="Capsulas"
@@ -47,6 +50,7 @@ export default function BottomTabNavigator(route: any) {
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="build-outline" color={color} />,
         }}
+        initialParams={{Lang: language}}
       />
       <BottomTab.Screen
         name="Estadistica"
@@ -54,6 +58,7 @@ export default function BottomTabNavigator(route: any) {
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="build-outline" color={color} />,
         }}
+        initialParams={{Lang: language}}
       />
     </BottomTab.Navigator>
   );
@@ -69,13 +74,14 @@ function TabBarIcon(props: { name: React.ComponentProps<typeof Ionicons>['name']
 // https://reactnavigation.org/docs/tab-based-navigation#a-stack-navigator-for-each-tab
 const ChatTab = createStackNavigator<ChatParamList>();
 
-function ChatNavigator() {
+function ChatNavigator({route}: {route: any}) {
+  let language = route.params.Lang;
   return (
     <ChatTab.Navigator>
       <ChatTab.Screen
         name="ChatScreen"
         component={ChatScreen}
-        options={{ headerTitle: 'Chat' }}
+        options={{ headerTitle: 'Chat-'+language}}
       />
     </ChatTab.Navigator>
   );
@@ -83,13 +89,14 @@ function ChatNavigator() {
 
 const CapsulasTab = createStackNavigator<CapsulasParamList>();
 
-function CapsulasNavigator() {
+function CapsulasNavigator({route}: {route: any}) {
+  let language = route.params.Lang;
   return (
     <CapsulasTab.Navigator>
       <CapsulasTab.Screen
         name="CapsulasScreen"
         component={CapsulasScreen}
-        options={{ headerTitle: 'Capsulas' }}
+        options={{ headerTitle: 'Capsulas-'+language}}
       />
     </CapsulasTab.Navigator>
   );
@@ -97,13 +104,14 @@ function CapsulasNavigator() {
 
 const EstadisticaTab = createStackNavigator<EstadisticaParamList>();
 
-function EstadisticaNavigator() {
+function EstadisticaNavigator({route}: {route: any}) {
+  let language = route.params.Lang;
   return (
     <EstadisticaTab.Navigator>
       <EstadisticaTab.Screen
         name="EstadisticaScreen"
         component={EstadisticaScreen}
-        options={{ headerTitle: 'Estadistica' }}
+        options={{ headerTitle: 'Estadistica-'+language}}
       />
     </EstadisticaTab.Navigator>
   );

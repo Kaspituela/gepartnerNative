@@ -1,15 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Button } from 'react-native';
-
+import React, { useState } from 'react';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { Card, Container, FlagImg, FlagImgWrapper, FlagInfo, FlagText, Language, TextSection } from '../styles/FlagStyle';
 
 export default function LanguageScreen({navigation}: {navigation: any}) {
-
-  // El estado inicial esta en español por default, pero la idea seria poder guardar los 
-  // ajustes del usuario para que se mantenga en memoria persistente
-  const [selected, changeSelected] = useState(0);
   
-  const [Languages, swapLanguages] = useState([
+  const [Languages, setLanguages] = useState([
     {
       id: '0',
       Lang: 'Español',
@@ -24,79 +19,27 @@ export default function LanguageScreen({navigation}: {navigation: any}) {
       bgColor: 'white',
       SetLang: 'english',
     },
-    {
-      id: '2',
-      Lang: 'Français',
-      FlagImg: require('../assets/flags/France-Flag-icon.png'),
-      bgColor: 'white',
-      SetLang: 'french',
-    },
-    {
-      id: '3',
-      Lang: 'Deutsche',
-      FlagImg: require('../assets/flags/Germany-Flag-icon.png'),
-      bgColor: 'white',
-      SetLang: 'german',
-    },
-    {
-      id: '4',
-      Lang: 'Suomi',
-      FlagImg: require('../assets/flags/Finland-Flag-icon.png'),
-      bgColor: 'white',
-      SetLang: 'finnish',
-    },
-    {
-      id: '5',
-      Lang: 'Pусский',
-      FlagImg: require('../assets/flags/Russia-Flag-icon.png'),
-      bgColor: 'white',
-      SetLang: 'russian',
-    },
-    {
-      id: '6',
-      Lang: 'Italiano',
-      FlagImg: require('../assets/flags/Italy-Flag-icon.png'),
-      bgColor: 'white',
-      SetLang: 'italian',
-    },
   ]);
 
-  function setLanguage(LangId: string, lang: string, flag: any, setLang: string) {
-
-    var index: number = +LangId;
-
-    var newLanguages = Languages;
-    var current = newLanguages[selected];
-    
-    newLanguages[selected] = { id: current.id, Lang: current.Lang, FlagImg: current.FlagImg, bgColor: 'white' , SetLang: current.SetLang}
-    changeSelected(index);
-    
-    newLanguages[index] = { id: LangId, Lang: lang, FlagImg: flag, bgColor: '#00bf4980', SetLang: setLang }
-    
-    swapLanguages(newLanguages);
-
-    //var newLanguages = Languages.filter(item => item.id !== LangId);
-    //newLanguages.sort((a, b) => (+a.id < +b.id ? -1 : 1));
-    //newLanguages.unshift({ id: LangId, Lang: lang, FlagImg: flag });
-    //swapLanguages(newLanguages);
-    global.language = setLang;
-    console.log(setLang)
-  }
-
+  /*const pressHandler = (item) => {
+      console.log(item.SetLang)
+      navigation.navigate('ChatScreen', {lang:item.SetLang,})
+  }*/
 
   return (
     <Container>
-
+        <View style={styles.Bienvenida}>
+            <Text style={styles.p1}>Bienvenido a GEPartner!</Text>
+            <Text style={styles.p2}>Para comenzar, elige un idioma que quieras poner en práctica.</Text>
+        </View>
       <FlatList 
         data={Languages}
         keyExtractor={item=>item.id}
         renderItem={({ item }) => (
           
-          <Card onPress={() => setLanguage(item.id, item.Lang, item.FlagImg, item.SetLang)} style={{backgroundColor: item.bgColor}}>
-          
-          
+          <Card onPress={() => navigation.navigate('Root', {lang: item.SetLang, })}>
               <FlagInfo>
-                
+
                 <FlagImgWrapper >
                   <FlagImg source={item.FlagImg} />
                 </FlagImgWrapper>
@@ -111,34 +54,21 @@ export default function LanguageScreen({navigation}: {navigation: any}) {
           </Card>
         )}
       />
-      <Button
-        onPress={() => navigation.navigate('Root')}
-        title="Continuar"
-      />
-
     </Container>
-  );
+  )
 }
 
-
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-
-  selectedItem: {
-    marginVertical: 80,
-  },
-});
+    Bienvenida: {
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    p1: {
+      fontFamily: 'serif',
+      fontSize: 25,
+    },
+    p2: {
+      fontFamily: 'serif',
+      fontSize: 15,
+    }
+  });
