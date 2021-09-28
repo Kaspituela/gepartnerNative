@@ -29,8 +29,12 @@ const getTabBarVisibility = (route:any) => {
 
 export default function BottomTabNavigator({route}: {route: any}) {
   const colorScheme = useColorScheme();
-  const language = route.params.lang;
-  console.log(language);
+  let language:string = 'null';
+  if(route.params === undefined){
+    language = 'spanish';
+  } else{
+    language = route.params.lang;
+  }
   return (
     <BottomTab.Navigator
       initialRouteName="Chat"
@@ -82,6 +86,7 @@ function ChatNavigator({route}: {route: any}) {
         name="ChatScreen"
         component={ChatScreen}
         options={{ headerTitle: 'Chat-'+language}}
+        initialParams={{Lang: language}}
       />
     </ChatTab.Navigator>
   );
@@ -97,6 +102,7 @@ function CapsulasNavigator({route}: {route: any}) {
         name="CapsulasScreen"
         component={CapsulasScreen}
         options={{ headerTitle: 'Capsulas-'+language}}
+        initialParams={{Lang: language}}
       />
     </CapsulasTab.Navigator>
   );
@@ -112,6 +118,7 @@ function EstadisticaNavigator({route}: {route: any}) {
         name="EstadisticaScreen"
         component={EstadisticaScreen}
         options={{ headerTitle: 'Estadistica-'+language}}
+        initialParams={{Lang: language}}
       />
     </EstadisticaTab.Navigator>
   );
