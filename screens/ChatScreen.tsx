@@ -11,13 +11,11 @@ export default function ChatScreen({route}: {route: any}) {
   const [messageCorrection, setMessageCorrection] = useState('')
   const [messages, setMessages] = useState([])
 
-  var TTS_params = {}
+  // Parametros para el TTS. De momento están fijos. voy a trabajar en hacerlos customizables  
+  var TTS_params = { language: (route.params.Lang == "english") ? "en" : "es", pitch: 1.0, rate: 1 }
 
   useEffect(() => {
     let lang = route.params.Lang == 'english' ? 0 : 1
-    
-    // Parametros para el TTS. De momento están fijos. voy a trabajar en hacerlos customizables
-    TTS_params = {language: (lang == 0) ? "en" : "es", pitch: 1.0, rate: 1}
     
     const requestOptions = { 
       method: 'GET',
@@ -171,8 +169,10 @@ export default function ChatScreen({route}: {route: any}) {
   };
 
   // Lee el mensaje en la burbuja de texto (onLongPress)
-  const TTS_message = (messageToRead:any) => {
+  const TTS_message = (messageToRead: any) => {
+
     //console.log(messageToRead)
+    console.log(TTS_params)
     Speech.speak(messageToRead, TTS_params);
   };
 
