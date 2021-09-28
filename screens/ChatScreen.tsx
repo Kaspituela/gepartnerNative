@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Button, StyleSheet, View } from 'react-native';
 import { Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { Clipboard } from 'react-native'
 
 export default function ChatScreen({route}: {route: any}) {
   const [uid,setUid] = useState(0)
@@ -191,10 +192,56 @@ export default function ChatScreen({route}: {route: any}) {
             color: '#fff',
           },
         }}
-        onLongPress={()=>TTS_message(props.currentMessage.text)}
       />
     );
   };
+
+  const translateFunction = (message:any) => {
+    const requestTranslate = { 
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        msg: message,
+        src: 'en',
+        dest: 'es'
+      })
+      }
+      try { // Llamada a la api para translate -> http://gepartner-app.herokuapp.com/translation/
+      return fetch('http://gepartner-app.herokuapp.com/translation/', requestTranslate)
+      .then(response => {return response.json();})
+      .then(data => {
+        console.log(data)
+        alert("La traducción de: " + message + " es " + data.msg)
+        });
+      }
+      catch (error){
+        console.error(error);
+      }
+    }
+  
+
+  const onLongPress = (context:any, message:any) => { 
+    console.log(message);
+    const options = ['Traducir mensaje','Escuchar mensaje','Copiar mensaje', 'Cancelar'];
+    const cancelButtonIndex = options.length - 1;
+    context.actionSheet().showActionSheetWithOptions({
+        options,
+        cancelButtonIndex
+    }, (buttonIndex:any) => {
+        switch (buttonIndex) {
+            case 0:
+				        translateFunction(message.text)
+              	break;
+            case 1:
+                TTS_message(message.text)
+                break;
+            case 2:
+                Clipboard.setString(message.text);
+
+        }
+    });
+}
+
 
   const scrollToBottomComponent = () => {
     return(
@@ -226,6 +273,7 @@ export default function ChatScreen({route}: {route: any}) {
       onInputTextChanged={text => setinputText(text)}
       renderBubble={renderBubble}
       alwaysShowSend
+      onLongPress={onLongPress}
       renderSend={renderSend}
       renderCustomView = {renderCustomView}
       scrollToBottom
