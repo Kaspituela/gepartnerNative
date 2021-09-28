@@ -1,9 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
-import { forSlideRight } from '@react-navigation/stack/lib/typescript/src/TransitionConfigs/HeaderStyleInterpolators';
+import * as Speech from 'expo-speech';
 import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, View, Button, Text } from 'react-native';
+import { Button, StyleSheet, View } from 'react-native';
 import { Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 export default function ChatScreen({route}: {route: any}) {
@@ -12,14 +11,21 @@ export default function ChatScreen({route}: {route: any}) {
   const [messageCorrection, setMessageCorrection] = useState('')
   const [messages, setMessages] = useState([])
 
+  var TTS_params = {}
+
   useEffect(() => {
     let lang = route.params.Lang == 'english' ? 0 : 1
+    
+    // Parametros para el TTS. De momento están fijos. voy a trabajar en hacerlos customizables
+    TTS_params = {language: (lang == 0) ? "en" : "es", pitch: 1.0, rate: 1}
+    
     const requestOptions = { 
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     }
     console.log(requestOptions)
-    fetch('http://gepartner-app.herokuapp.com/msg?lng='+lang+'&uid='+uid+'&bid=5', requestOptions)
+    
+    fetch('http://gepartner-app.herokuapp.com/msg?lng=' + lang + '&uid=' + uid + '&bid=5', requestOptions)
 		.then(response => {return response.json();})
 		.then(data => {
       console.log(data)
@@ -164,6 +170,12 @@ export default function ChatScreen({route}: {route: any}) {
     onSend(newMessage)
   };
 
+  // Lee el mensaje en la burbuja de texto (onLongPress)
+  const TTS_message = (messageToRead:any) => {
+    //console.log(messageToRead)
+    Speech.speak(messageToRead, TTS_params);
+  };
+
   const renderBubble = (props:any) => {
     // console.log(props)
     return (
@@ -179,6 +191,7 @@ export default function ChatScreen({route}: {route: any}) {
             color: '#fff',
           },
         }}
+        onLongPress={()=>TTS_message(props.currentMessage.text)}
       />
     );
   };
@@ -200,6 +213,7 @@ export default function ChatScreen({route}: {route: any}) {
       )
     }
   };
+
 
   return (
       <GiftedChat
