@@ -105,23 +105,26 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
       setMessageCorrection(data.correction)
       } else if (data.correction == "" && data.msg != ""){
         let bot_id = 5 + uid
+        let bid = data.bid === undefined ? Math.floor(Math.random() * 10000) + 1 : data.bid
         let openai_response = {
-        _id: Math.floor(Math.random() * 10000) + 1,
-        text: data.msg,
-        createdAt: new Date(),
-        user: {
-          _id: bot_id,
-          name: 'React Native',
-          avatar: require('../assets/users/robot-babbage.png'),
-        },
+          _id: bid,
+          text: data.msg,
+          createdAt: new Date(),
+          user: {
+            _id: bot_id,
+            name: 'React Native',
+            avatar: require('../assets/users/robot-babbage.png'),
+          },
         } as any
         message.push(openai_response)
       }
+    let mid = data.mid === undefined ? Math.floor(Math.random() * 10000) + 1 : data.mid
+    newMessage[0]._id = mid
     message.push(newMessage[0])
     console.log("End: ",message); // mensaje enviado por usuario, enviar a la API
     setMessages(messages => GiftedChat.append(messages, message))
     energyFunction()
-		});
+    });
 
 	}
   
@@ -148,9 +151,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
   }
 
   const handlerPress = () => {
-    return(
-      alert('filtrado listo nos vamos')
-    )
+    navigation.navigate('FilterTag')
   }
   // React.useLayoutEffect(() => {
   //   navigation.setOptions({
@@ -224,28 +225,32 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
   };
 
   const translateFunction = (message:any) => {
-    const requestTranslate = { 
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        msg: message,
-        src: 'en',
-        dest: 'es'
-      })
-      }
-      try { // Llamada a la api para translate -> http://gepartner-app.herokuapp.com/translation/
-      return fetch('http://gepartner-app.herokuapp.com/translation/', requestTranslate)
-      .then(response => {return response.json();})
-      .then(data => {
-        console.log(data)
-        //alert("La traducción de: \n" + message + "\n\n" + " es: \n" + data.msg)
-        alert("La traducción de: \n" + message + "\n" + " es: \n" + data.msg)
-        });
-      }
-      catch (error){
-        console.error(error);
-      }
+    if(uid === 0){
+      alert("Funcion Premium")
+    } else{
+      const requestTranslate = { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          msg: message,
+          src: 'en',
+          dest: 'es'
+        })
+        }
+        try { // Llamada a la api para translate -> http://gepartner-app.herokuapp.com/translation/
+        return fetch('http://gepartner-app.herokuapp.com/translation/', requestTranslate)
+        .then(response => {return response.json();})
+        .then(data => {
+          console.log(data)
+          //alert("La traducción de: \n" + message + "\n\n" + " es: \n" + data.msg)
+          alert("La traducción de: \n" + message + "\n" + " es: \n" + data.msg)
+          });
+        }
+        catch (error){
+          console.error(error);
+        }
     }
+  }
   
 
   const onLongPress = (context:any, message:any) => { 
@@ -258,11 +263,19 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
     }, (buttonIndex:any) => {
         switch (buttonIndex) {
           case 0:
-            translateFunction(message.text)
+            if(uid === 0){
+              alert("Funcion Premium")
+            } else if(uid === 1){
+              translateFunction(message.text)
+            }
             break;
           case 1:
-            setTTS_Text(message.text);
-            setModalVisibility(true);
+            if(uid === 0){
+              alert("Funcion Premium")
+            } else if(uid === 1){
+              setTTS_Text(message.text);
+              setModalVisibility(true);
+            }
             break;
           case 2:
             navigation.navigate('CreateTag', {currMessage: message})

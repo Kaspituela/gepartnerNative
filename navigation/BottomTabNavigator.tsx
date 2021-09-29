@@ -15,7 +15,8 @@ import CapsulasScreen from '../screens/CapsulaScreen';
 import ChatScreen from '../screens/ChatScreen';
 import EstadisticaScreen from '../screens/EstadisticaScreen';
 import { BottomTabParamList, CapsulasParamList, ChatParamList, EstadisticaParamList } from '../types';
-
+import { Language } from '../styles/FlagStyle';
+import FilterTag from '../components/FilterTag';
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -105,6 +106,12 @@ function ChatNavigator({route}: {route: any}) {
         name="CreateTag"
         component={CreateTag}
         options={{ headerTitle: 'Crear Tag(s) - '+ capitalize(language)}}
+      />
+      <ChatTab.Screen
+        name="FilterTag"
+        component={FilterTag}
+        options={{ headerTitle: 'Filtrar Tag(s)'}}
+        initialParams={{Lang: language, cUserId: currentUserId}}
       />
     </ChatTab.Navigator>
   );
