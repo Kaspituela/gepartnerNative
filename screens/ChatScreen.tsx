@@ -2,7 +2,7 @@ import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Component } from 'react';
-import { Alert, Button, Clipboard, Modal, StyleSheet, Text, View } from 'react-native';
+import { Alert, Button, Clipboard, Modal, Platform, StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
 import { Colors, IconButton, ProgressBar } from 'react-native-paper';
@@ -22,6 +22,9 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
 
   const [modalVisibility, setModalVisibility] = useState(false);
   const [TTS_Text, setTTS_Text] = useState("");
+  const [isPaused, setIsPaused] = useState(true);
+  const [playIcon, setPlayIcon] = useState("play");
+  const [hasPlayed, setHasPlayed] = useState(false);
 
 
   useEffect(() => {
@@ -193,12 +196,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
   };
 
   // Lee el mensaje en la burbuja de texto (onLongPress)
-  const TTS_message = (messageToRead: any) => {
 
-    //console.log(messageToRead)
-    console.log(TTS_params)
-    Speech.speak(messageToRead, TTS_params);
-  };
 
   const renderBubble = (props:any) => {
     // console.log(props)
@@ -259,7 +257,6 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
           case 1:
             setTTS_Text(message.text);
             setModalVisibility(true);
-              //TTS_message(message.text)
             break;
           case 2:
             navigation.navigate('CreateTag', {currMessage: message})
@@ -269,7 +266,42 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
 
         }
     });
-}
+  }
+
+
+  const PlayTTS = () => {
+    if (!Platform.OS === "android") {
+      if (isPaused) {
+        setIsPaused(false);
+        setPlayIcon("pause");
+  
+        if (!hasPlayed) {
+          Speech.speak(TTS_Text, TTS_params);
+        } else {
+          Speech.resume();
+        }
+  
+      } else {
+        setIsPaused(true);
+        setPlayIcon("play");
+        Speech.pause();
+      }
+    } else {
+      Speech.stop();
+      Speech.speak(TTS_Text, TTS_params);
+    }
+
+  }
+
+  const StopTTS = () => {
+    Speech.stop();
+    setHasPlayed(false);
+  }
+
+  const CloseTTS = () => {
+    StopTTS();
+    setModalVisibility(!modalVisibility);
+  }
 
 
   const scrollToBottomComponent = () => {
@@ -295,11 +327,11 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
     <View style={{ flex: 1 }}>
 
       <View style={[styles.row, styles.rowEnergy]}>
-        <View style={{marginTop: 15, marginRight: 40, marginLeft: 40, flexGrow:1}}>
-          <Text style={{width: "90%", textAlign: "center"}}>Energia restante: {energyLocal.toString()}</Text>
-          <ProgressBar style={{width: "90%"}} progress={energyLocal/energyTotal} color={Colors.red800} />
+        <View style={{marginTop: 15, marginRight: 30, marginLeft: 40, flexGrow:1}}>
+          <Text style={{width: "95%", textAlign: "center"}}>Energia restante: {energyLocal.toString()}</Text>
+          <ProgressBar style={styles.progressBar} progress={energyLocal/energyTotal} color={Colors.red800} />
         </View>
-        <Icon style={{marginRight: 35, marginTop: 15}} onPress={() => { handlerPress() }} name="ellipsis-v" size={30} />
+        <Icon style={{marginRight: 30, marginTop: 18}} onPress={() => { handlerPress() }} name="ellipsis-v" size={30} />
       </View>
 
       
@@ -314,7 +346,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
           { /* Vista del cuadro interno del Modal */}
           <View style={styles.MenuTTS}>
             
-            <IconButton style={{position:'absolute', right:10}} icon="close" onPress={() => { setModalVisibility(!modalVisibility) }} />
+            <IconButton style={{position:'absolute', right:10}} icon="close" onPress={() => { CloseTTS() }} />
           
             <ScrollView style={styles.TextStyle}> 
               <Text style={{fontSize: 18}}> "{TTS_Text}" </Text>
@@ -322,9 +354,9 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
 
             {/* Rows para colocar botones. */ }
             <View style={[styles.row, styles.rowTTS]}>
-              <IconButton icon="umbrella-closed" onPress={() => { setModalVisibility(!modalVisibility) }} />
-              <IconButton icon="umbrella-closed" onPress={() => { setModalVisibility(!modalVisibility) }} />
-              <IconButton icon="umbrella-closed" onPress={() => { setModalVisibility(!modalVisibility) }} />
+              <IconButton style={styles.MenuTTS_button} icon={playIcon} onPress={() => { PlayTTS() }} />
+              <IconButton style={styles.MenuTTS_button} icon="stop" onPress={() => { StopTTS() }} />
+              <IconButton style={styles.MenuTTS_button} icon="umbrella-closed" onPress={() => { setModalVisibility(!modalVisibility) }} />
             </View>           
           </View>
         </View>
@@ -356,6 +388,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end'
   },
+  progressBar: {
+    width: "95%",
+    height: 7,
+    borderRadius: 5,
+    borderColor: "#000000",
+    marginTop: 4,
+  },
 
   row: {
     flex: 1,
@@ -369,8 +408,8 @@ const styles = StyleSheet.create({
     maxHeight: 60
   },
   rowTTS: {
-    position: 'relative',
-    marginBottom: 50,
+    position: 'absolute',
+    bottom: 10,
     backgroundColor: "#f2f2f2"
   },
 
@@ -388,7 +427,7 @@ const styles = StyleSheet.create({
   },
   TextStyle: {
     position: 'relative',
-    marginBottom: 15,
+    marginBottom: 60,
     marginTop: 40,
     marginLeft: 20,
     marginRight: 20,
@@ -398,8 +437,8 @@ const styles = StyleSheet.create({
     //height: "60%",
     //minHeight: 150
   },
-  MenuTTS_close: {
-    height: 20,
-    width: 20
+  MenuTTS_button: {
+    height: 30,
+    width: 30
   }
 });
