@@ -1,10 +1,13 @@
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Button, Clipboard, StyleSheet, Text, View } from 'react-native';
+import { Component } from 'react';
+import { Alert, Button, Clipboard, Modal, StyleSheet, Text, View } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
-import { Colors, ProgressBar } from 'react-native-paper';
+import { Colors, IconButton, ProgressBar } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
+
 
 export default function ChatScreen({navigation, route}: {navigation: any, route: any}) {
   let uid = route.params.cUserId
@@ -16,6 +19,10 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
   let energyTotal = 2700
   // Parametros para el TTS. De momento están fijos. voy a trabajar en hacerlos customizables  
   var TTS_params = { language: (route.params.Lang == "english") ? "en" : "es", pitch: 1.0, rate: 1 }
+
+  const [modalVisibility, setModalVisibility] = useState(false);
+  const [TTS_Text, setTTS_Text] = useState("");
+
 
   useEffect(() => {
     energyFunction()
@@ -227,7 +234,8 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
       .then(response => {return response.json();})
       .then(data => {
         console.log(data)
-        alert("La traducción de: " + message + " es " + data.msg)
+        //alert("La traducción de: \n" + message + "\n\n" + " es: \n" + data.msg)
+        Alert.alert("Traduccion", "La traducción de: \n" + message + "\n\n" + " es: \n" + data.msg)
         });
       }
       catch (error){
@@ -245,17 +253,19 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
         cancelButtonIndex
     }, (buttonIndex:any) => {
         switch (buttonIndex) {
-            case 0:
-				        translateFunction(message.text)
-              	break;
-            case 1:
-                TTS_message(message.text)
-                break;
-            case 2:
-                navigation.navigate('CreateTag', {currMessage: message})
-                break;
-            case 3:
-                Clipboard.setString(message.text);
+          case 0:
+            translateFunction(message.text)
+            break;
+          case 1:
+            setTTS_Text(message.text);
+            setModalVisibility(true);
+              //TTS_message(message.text)
+            break;
+          case 2:
+            navigation.navigate('CreateTag', {currMessage: message})
+            break;
+          case 3:
+            Clipboard.setString(message.text);
 
         }
     });
@@ -284,7 +294,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
   return (
     <View style={{ flex: 1 }}>
 
-      <View style={styles.row}>
+      <View style={[styles.row, styles.rowEnergy]}>
         <View style={{marginTop: 15, marginRight: 40, marginLeft: 40, flexGrow:1}}>
           <Text style={{width: "90%", textAlign: "center"}}>Energia restante: {energyLocal.toString()}</Text>
           <ProgressBar style={{width: "90%"}} progress={energyLocal/energyTotal} color={Colors.red800} />
@@ -292,6 +302,34 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
         <Icon style={{marginRight: 35, marginTop: 15}} onPress={() => { handlerPress() }} name="ellipsis-v" size={30} />
       </View>
 
+      
+      {/* Modal utiliza la pantalla entera, por lo que se divide en varias vistas, donde la parte externa es transparente */}
+      <Modal
+        transparent={true}
+        animationType={"slide"}
+        visible={modalVisibility}
+        onRequestClose={() => { setModalVisibility(!modalVisibility) }} >
+        {/* Diseño del tamaño completo de la pantalla */}
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          { /* Vista del cuadro interno del Modal */}
+          <View style={styles.MenuTTS}>
+            
+            <IconButton style={{position:'absolute', right:10}} icon="close" onPress={() => { setModalVisibility(!modalVisibility) }} />
+          
+            <ScrollView style={styles.TextStyle}> 
+              <Text style={{fontSize: 18}}> "{TTS_Text}" </Text>
+            </ScrollView>
+
+            {/* Rows para colocar botones. */ }
+            <View style={[styles.row, styles.rowTTS]}>
+              <IconButton icon="umbrella-closed" onPress={() => { setModalVisibility(!modalVisibility) }} />
+              <IconButton icon="umbrella-closed" onPress={() => { setModalVisibility(!modalVisibility) }} />
+              <IconButton icon="umbrella-closed" onPress={() => { setModalVisibility(!modalVisibility) }} />
+            </View>           
+          </View>
+        </View>
+      </Modal>
+            
       <GiftedChat
         messages={messages}
         onSend={messages => onSend(messages)}
@@ -318,12 +356,50 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end'
   },
+
   row: {
     flex: 1,
     flexDirection: "row",
     alignSelf: "flex-start",
-    maxHeight: 50,
-    backgroundColor: "#f5f5f5",
-    width: "100vw"
+    width: "100%",
+    justifyContent: 'center'
   },
+  rowEnergy:{
+    backgroundColor: "#e9e9e9",
+    maxHeight: 60
+  },
+  rowTTS: {
+    position: 'relative',
+    marginBottom: 50,
+    backgroundColor: "#f2f2f2"
+  },
+
+  MenuTTS:{
+    //justifyContent: 'center',
+    alignItems: 'center', 
+    backgroundColor : "#f2f2f2", 
+    //height: "40%",
+    //minHeight: 250,
+    width: "90%",
+    borderRadius:10,
+    borderWidth: 2,
+    borderColor: '#000000',
+    maxHeight: "60%"
+  },
+  TextStyle: {
+    position: 'relative',
+    marginBottom: 15,
+    marginTop: 40,
+    marginLeft: 20,
+    marginRight: 20,
+    color: "#000000",
+    textAlign: 'center',
+    overflow: 'scroll',
+    //height: "60%",
+    //minHeight: 150
+  },
+  MenuTTS_close: {
+    height: 20,
+    width: 20
+  }
 });

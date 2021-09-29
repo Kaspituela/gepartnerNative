@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View,Text,StyleSheet } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 export default function CapsulasScreen() {
     return (
@@ -16,6 +16,6 @@ const styles = StyleSheet.create({
     innerText: {
         fontSize: 20,
         fontWeight: "bold",
-        color: 'white'
+        color: 'black'
     }
 });

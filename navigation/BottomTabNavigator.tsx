@@ -4,18 +4,17 @@
  */
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { getFocusedRouteNameFromRoute } from '@react-navigation/native'
 import * as React from 'react';
 
+import CreateTag from '../components/CreateTag';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
-import ChatScreen from '../screens/ChatScreen';
 import CapsulasScreen from '../screens/CapsulaScreen';
+import ChatScreen from '../screens/ChatScreen';
 import EstadisticaScreen from '../screens/EstadisticaScreen';
-import { BottomTabParamList, ChatParamList, CapsulasParamList, EstadisticaParamList} from '../types';
-import { Language } from '../styles/FlagStyle';
-import CreateTag from '../components/CreateTag';
+import { BottomTabParamList, CapsulasParamList, ChatParamList, EstadisticaParamList } from '../types';
 
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
@@ -25,6 +24,10 @@ const getTabBarVisibility = (route:any) => {
     const hideOnScreens = ['Chat'];
     if(hideOnScreens.indexOf(routeName as string) > -1) return false;
     return true;
+};
+
+const capitalize = (langName: string) => {
+  return langName.charAt(0).toUpperCase() + langName.slice(1);
 };
 
 
@@ -88,19 +91,20 @@ const ChatTab = createStackNavigator<ChatParamList>();
 function ChatNavigator({route}: {route: any}) {
   let language = route.params.Lang;
   let currentUserId = route.params.cUserId;
-  let textPremium = currentUserId === 0 ? "Gratuito" : "Premium"
+  let textPremium = currentUserId === 0 ? "Gratuito" : "Premium";
+  
   return (
     <ChatTab.Navigator>
       <ChatTab.Screen
         name="ChatScreen"
         component={ChatScreen}
-        options={{ headerTitle: 'Chat - '+language+' - '+textPremium}}
+        options={{ headerTitle: 'Chat - '+ capitalize(language) +' - '+textPremium}}
         initialParams={{Lang: language, cUserId: currentUserId}}
       />
       <ChatTab.Screen
         name="CreateTag"
         component={CreateTag}
-        options={{ headerTitle: 'Crear Tag(s) - '+language}}
+        options={{ headerTitle: 'Crear Tag(s) - '+ capitalize(language)}}
       />
     </ChatTab.Navigator>
   );
@@ -108,16 +112,19 @@ function ChatNavigator({route}: {route: any}) {
 
 const CapsulasTab = createStackNavigator<CapsulasParamList>();
 
+
+
 function CapsulasNavigator({route}: {route: any}) {
   let language = route.params.Lang;
   let currentUserId = route.params.cUserId;
-  let textPremium = currentUserId === 0 ? "Gratuito" : "Premium"
+  let textPremium = currentUserId === 0 ? "Gratuito" : "Premium";
+
   return (
     <CapsulasTab.Navigator>
       <CapsulasTab.Screen
         name="CapsulasScreen"
         component={CapsulasScreen}
-        options={{ headerTitle: 'Capsulas - '+language+' - '+textPremium}}
+        options={{ headerTitle: 'Capsulas - '+ capitalize(language)+' - '+textPremium}}
         initialParams={{Lang: language}}
       />
     </CapsulasTab.Navigator>
@@ -129,12 +136,14 @@ const EstadisticaTab = createStackNavigator<EstadisticaParamList>();
 function EstadisticaNavigator({route}: {route: any}) {
   let language = route.params.Lang;
   let currentUserId = route.params.cUserId;
+  let textPremium = currentUserId === 0 ? "Gratuito" : "Premium";
+  
   return (
     <EstadisticaTab.Navigator>
       <EstadisticaTab.Screen
         name="EstadisticaScreen"
         component={EstadisticaScreen}
-        options={{ headerTitle: 'Estadistica - '+language+' - '+textPremium}}
+        options={{ headerTitle: 'Estadistica - '+ capitalize(language) +' - '+ textPremium}}
         initialParams={{Lang: language}}
       />
     </EstadisticaTab.Navigator>
