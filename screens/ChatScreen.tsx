@@ -323,6 +323,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignSelf: "flex-start",
     maxHeight: 50,
-    backgroundColor: "#f5f5f5"
+    backgroundColor: "#f5f5f5",
+    width: "100vw"
   },
 });
