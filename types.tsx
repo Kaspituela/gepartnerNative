@@ -21,6 +21,7 @@ export type LanguageParamList = {
 
 export type ChatParamList = {
   ChatScreen: undefined;
+  CreateTag: undefined;
 };
 
 export type CapsulasParamList = {

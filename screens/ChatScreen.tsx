@@ -5,9 +5,10 @@ import { Button, StyleSheet, View } from 'react-native';
 import { Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Clipboard } from 'react-native'
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-export default function ChatScreen({route}: {route: any}) {
-  const [uid,setUid] = useState(0)
+export default function ChatScreen({navigation, route}: {navigation: any, route: any}) {
+  const [uid,setUid] = useState(1)
   const [inputText,setinputText] = useState("")
   const [messageCorrection, setMessageCorrection] = useState('')
   const [messages, setMessages] = useState([])
@@ -62,6 +63,8 @@ export default function ChatScreen({route}: {route: any}) {
             createdAt: new Date(),
             user: {
               _id: data.bot[tam].user_id,
+              name: 'React Native',
+              avatar: require('../assets/users/robot-babbage.png'),
             },
           } as any
           console.log(botMessage)
@@ -134,6 +137,19 @@ export default function ChatScreen({route}: {route: any}) {
 
   }, [])
 
+  const handlerPress = () => {
+    return(
+      alert('filtrado listo nos vamos')
+    )
+  }
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Icon /*style={{marginRight: '20px'}}*/ onPress={() => {handlerPress()}} name="ellipsis-v" size={30}/>
+      )
+    })
+  }, [navigation])
+
   const renderSend = (props:any) => {
     return (
       <Send {...props}>
@@ -161,7 +177,7 @@ export default function ChatScreen({route}: {route: any}) {
       	text: messageCorrection,
       	createdAt: new Date(),
       	user: {
-      		_id: 0,
+      		_id: uid,
       	},
         correction: 0,
     } as any]
@@ -222,7 +238,7 @@ export default function ChatScreen({route}: {route: any}) {
 
   const onLongPress = (context:any, message:any) => { 
     console.log(message);
-    const options = ['Traducir mensaje','Escuchar mensaje','Copiar mensaje', 'Cancelar'];
+    const options = ['Traducir mensaje','Escuchar mensaje', 'Añadir tag','Copiar mensaje', 'Cancelar'];
     const cancelButtonIndex = options.length - 1;
     context.actionSheet().showActionSheetWithOptions({
         options,
@@ -236,6 +252,9 @@ export default function ChatScreen({route}: {route: any}) {
                 TTS_message(message.text)
                 break;
             case 2:
+                navigation.navigate('CreateTag')
+                break;
+            case 3:
                 Clipboard.setString(message.text);
 
         }
