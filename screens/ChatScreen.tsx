@@ -167,13 +167,11 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
   const renderSend = (props:any) => {
     return (
       <Send {...props}>
-             <View style={styles.container}>
-      <Button 
-       title="Traducir"
-       color="blue"
-       onPress={() => translateFunction(props.text)}/>
-    </View>
         <View>
+          <Button 
+          title="Traducir"
+          color="blue"
+          onPress={() => translateFunction(props.text)}/>
           <Ionicons
             name="paper-plane-outline"
             style={{marginBottom: 10, marginRight: 10}}
