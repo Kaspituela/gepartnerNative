@@ -36,6 +36,12 @@ export default function BottomTabNavigator({route}: {route: any}) {
   } else{
     language = route.params.lang;
   }
+  let currentUserId:any = 0;
+  if(route.params === undefined){
+    currentUserId = 0;
+  } else{
+    currentUserId = route.params.cUserId;
+  }
   return (
     <BottomTab.Navigator
       initialRouteName="Chat"
@@ -47,7 +53,7 @@ export default function BottomTabNavigator({route}: {route: any}) {
           tabBarVisible: getTabBarVisibility(route),
           tabBarIcon: ({ color }) => <TabBarIcon name="chatbox-ellipses-outline" color={color} />,
         })}
-        initialParams={{Lang: language}}
+        initialParams={{Lang: language, cUserId: currentUserId}}
       />
       <BottomTab.Screen
         name="Capsulas"
@@ -55,7 +61,7 @@ export default function BottomTabNavigator({route}: {route: any}) {
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="build-outline" color={color} />,
         }}
-        initialParams={{Lang: language}}
+        initialParams={{Lang: language, cUserId: currentUserId}}
       />
       <BottomTab.Screen
         name="Estadistica"
@@ -63,7 +69,7 @@ export default function BottomTabNavigator({route}: {route: any}) {
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="build-outline" color={color} />,
         }}
-        initialParams={{Lang: language}}
+        initialParams={{Lang: language, cUserId: currentUserId}}
       />
     </BottomTab.Navigator>
   );
@@ -81,13 +87,15 @@ const ChatTab = createStackNavigator<ChatParamList>();
 
 function ChatNavigator({route}: {route: any}) {
   let language = route.params.Lang;
+  let currentUserId = route.params.cUserId;
+  let textPremium = currentUserId === 0 ? "Gratuito" : "Premium"
   return (
     <ChatTab.Navigator>
       <ChatTab.Screen
         name="ChatScreen"
         component={ChatScreen}
-        options={{ headerTitle: 'Chat-'+language}}
-        initialParams={{Lang: language}}
+        options={{ headerTitle: 'Chat - '+language+' - '+textPremium}}
+        initialParams={{Lang: language, cUserId: currentUserId}}
       />
       <ChatTab.Screen
         name="CreateTag"
@@ -102,12 +110,14 @@ const CapsulasTab = createStackNavigator<CapsulasParamList>();
 
 function CapsulasNavigator({route}: {route: any}) {
   let language = route.params.Lang;
+  let currentUserId = route.params.cUserId;
+  let textPremium = currentUserId === 0 ? "Gratuito" : "Premium"
   return (
     <CapsulasTab.Navigator>
       <CapsulasTab.Screen
         name="CapsulasScreen"
         component={CapsulasScreen}
-        options={{ headerTitle: 'Capsulas-'+language}}
+        options={{ headerTitle: 'Capsulas - '+language+' - '+textPremium}}
         initialParams={{Lang: language}}
       />
     </CapsulasTab.Navigator>
@@ -118,12 +128,13 @@ const EstadisticaTab = createStackNavigator<EstadisticaParamList>();
 
 function EstadisticaNavigator({route}: {route: any}) {
   let language = route.params.Lang;
+  let currentUserId = route.params.cUserId;
   return (
     <EstadisticaTab.Navigator>
       <EstadisticaTab.Screen
         name="EstadisticaScreen"
         component={EstadisticaScreen}
-        options={{ headerTitle: 'Estadistica-'+language}}
+        options={{ headerTitle: 'Estadistica - '+language+' - '+textPremium}}
         initialParams={{Lang: language}}
       />
     </EstadisticaTab.Navigator>

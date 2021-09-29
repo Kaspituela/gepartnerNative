@@ -1,22 +1,26 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Button, StyleSheet, View } from 'react-native';
+import { Button, StyleSheet, View, Text } from 'react-native';
 import { Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { Clipboard } from 'react-native'
+import { ProgressBar, Colors } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function ChatScreen({navigation, route}: {navigation: any, route: any}) {
-  const [uid,setUid] = useState(1)
+  let uid = route.params.cUserId
   const [inputText,setinputText] = useState("")
   const [messageCorrection, setMessageCorrection] = useState('')
   const [messages, setMessages] = useState([])
+  const [energyLocal, setEnergyLocal] = useState(2700)
 
+  let energyTotal = 2700
   // Parametros para el TTS. De momento están fijos. voy a trabajar en hacerlos customizables  
   var TTS_params = { language: (route.params.Lang == "english") ? "en" : "es", pitch: 1.0, rate: 1 }
 
   useEffect(() => {
+    energyFunction()
     let lang = route.params.Lang == 'english' ? 0 : 1
     
     const requestOptions = { 
@@ -24,68 +28,47 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
       headers: { 'Content-Type': 'application/json' },
     }
     console.log(requestOptions)
-    
-    fetch('http://gepartner-app.herokuapp.com/msg?lng=' + lang + '&uid=' + uid + '&bid=5', requestOptions)
+    let bot_id = 5 + uid
+    fetch('http://gepartner-app.herokuapp.com/msg?lng=' + lang + '&uid=' + uid + '&bid='+bot_id, requestOptions)
 		.then(response => {return response.json();})
 		.then(data => {
-      console.log(data)
-      let tam = data.bot.length <= data.user.length ? data.bot.length : data.user.length
-      console.log(tam)
-      for(let i = 0; i < tam; i++){
-        let userMessage = {
-          _id: data.user[i].id,
-          text: data.user[i].content,
-          createdAt: new Date(),
-          user: {
-            _id: data.user[i].user_id,
-          },
-        } as any
-        console.log(userMessage)
-        setMessages(messages => GiftedChat.append(messages, userMessage))
-        let botMessage = {
-          _id: data.bot[i].id,
-          text: data.bot[i].content,
-          createdAt: new Date(),
-          user: {
-            _id: data.bot[i].user_id,
-            name: 'React Native',
-            avatar: require('../assets/users/robot-babbage.png'),
-          },
-        } as any
-        console.log(botMessage)
-        setMessages(messages => GiftedChat.append(messages, botMessage))
-      }
-      if(tam < data.bot.length){
-        for(; tam < data.bot.length; tam++){
-          let botMessage = {
-            _id: data.bot[tam].id,
-            text: data.bot[tam].content,
-            createdAt: new Date(),
-            user: {
-              _id: data.bot[tam].user_id,
-              name: 'React Native',
-              avatar: require('../assets/users/robot-babbage.png'),
-            },
-          } as any
-          console.log(botMessage)
-          setMessages(messages => GiftedChat.append(messages, botMessage))
-        }
-      } else if (tam < data.user.length){
-        for(; tam < data.user.length; tam++){
-          let userMessage = {
-            _id: data.user[tam].id,
-            text: data.user[tam].content,
-            createdAt: new Date(),
-            user: {
-              _id: data.user[tam].user_id,
-            },
-          } as any
-          console.log(userMessage)
-          setMessages(messages => GiftedChat.append(messages, userMessage))
-        }
-      }
+      let newdata = data.user.concat(data.bot);
+      addMessages(newdata)
     });
   }, [])
+
+  const addMessages = (newdata: any) =>{
+    newdata = sortMessages(newdata,"id")
+    let bot_id = 5 + uid
+    console.log(newdata)
+    for(let i = 0; i < newdata.length; i++){
+        let newMessage = {
+          _id: newdata[i].id,
+          text: newdata[i].content,
+          createdAt: new Date(),
+          user: {
+            _id: newdata[i].user_id,
+          },
+        } as any
+        
+        if(newdata[i].user_id === bot_id){
+          newMessage.user = {
+            _id: newdata[i].user_id,
+            name: 'React Native',
+            avatar: require('../assets/users/robot-babbage.png'),
+          }
+        }
+        console.log(newMessage)
+        setMessages(messages => GiftedChat.append(messages, newMessage))
+  }
+  }
+
+  const sortMessages = (array:any,key:any) =>{
+    return array.sort(function(a:any, b:any) {
+        var x = a[key]; var y = b[key];
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+    });
+  }
 
   const onSend = useCallback((newMessage = []) => {
   let message:any = []
@@ -99,7 +82,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
 		headers: { 'Content-Type': 'application/json' },
 		body: JSON.stringify({
 				msg: usr_msj,
-				user_id: 0,
+				user_id: uid,
         lng: route.params.Lang
 		})
 	}
@@ -112,12 +95,13 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
       newMessage[0].correction = 1;
       setMessageCorrection(data.correction)
       } else if (data.correction == "" && data.msg != ""){
+        let bot_id = 5 + uid
         let openai_response = {
         _id: Math.floor(Math.random() * 10000) + 1,
         text: data.msg,
         createdAt: new Date(),
         user: {
-          _id: 5,
+          _id: bot_id,
           name: 'React Native',
           avatar: require('../assets/users/robot-babbage.png'),
         },
@@ -127,9 +111,11 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
     message.push(newMessage[0])
     console.log("End: ",message); // mensaje enviado por usuario, enviar a la API
     setMessages(messages => GiftedChat.append(messages, message))
+    energyFunction()
 		});
 
 	}
+  
 	
 	catch (error){
 		console.error(error);
@@ -137,18 +123,33 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
 
   }, [])
 
+  const energyFunction = () => {
+    const requestEnergy = { 
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    }
+    fetch('http://gepartner-app.herokuapp.com/user?uid=' + uid , requestEnergy)
+    .then(response => {return response.json();})
+    .then(data => {
+      let en = data.user.energy
+      console.log(en)
+      setEnergyLocal(en)
+
+    });
+  }
+
   const handlerPress = () => {
     return(
       alert('filtrado listo nos vamos')
     )
   }
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <Icon /*style={{marginRight: '20px'}}*/ onPress={() => {handlerPress()}} name="ellipsis-v" size={30}/>
-      )
-    })
-  }, [navigation])
+  // React.useLayoutEffect(() => {
+  //   navigation.setOptions({
+  //     headerRight: () => (
+  //       <Icon /*style={{marginRight: '20px'}}*/ onPress={() => {handlerPress()}} name="ellipsis-v" size={30}/>
+  //     )
+  //   })
+  // }, [navigation])
 
   const renderSend = (props:any) => {
     return (
@@ -282,22 +283,29 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
 
 
   return (
-      <GiftedChat
-      messages={messages}
-      onSend={messages => onSend(messages)}
-      user={{
-        _id: uid,
-      }}
-      text = {inputText}
-      onInputTextChanged={text => setinputText(text)}
-      renderBubble={renderBubble}
-      alwaysShowSend
-      onLongPress={onLongPress}
-      renderSend={renderSend}
-      renderCustomView = {renderCustomView}
-      scrollToBottom
-      scrollToBottomComponent={scrollToBottomComponent}
-    />
+    <View style={{flex: 1, paddingRight: 20}}>
+      <View style={{paddingRight: 10, width: "150px"}}>
+        <Text style={{textAlign: "center"}}>Energia {energyLocal.toString()}</Text>
+        <ProgressBar progress={energyLocal/energyTotal} color={Colors.red800} />
+      </View>
+      <Icon /*style={{marginRight: '20px'}}*/ onPress={() => {handlerPress()}} name="ellipsis-v" size={30}/>
+        <GiftedChat
+        messages={messages}
+        onSend={messages => onSend(messages)}
+        user={{
+          _id: uid,
+        }}
+        text = {inputText}
+        onInputTextChanged={text => setinputText(text)}
+        renderBubble={renderBubble}
+        alwaysShowSend
+        onLongPress={onLongPress}
+        renderSend={renderSend}
+        renderCustomView = {renderCustomView}
+        scrollToBottom
+        scrollToBottomComponent={scrollToBottomComponent}
+      />
+    </View>
   )
 };
 
