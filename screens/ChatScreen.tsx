@@ -1,8 +1,9 @@
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
+import Slider from '@react-native-community/slider';
 import * as Speech from 'expo-speech';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Component } from 'react';
-import { Alert, Button, Clipboard, Modal, Platform, StyleSheet, Text, View } from 'react-native';
+import { Button, Clipboard, Modal, Platform, StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
 import { Colors, IconButton, ProgressBar } from 'react-native-paper';
@@ -18,14 +19,16 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
 
   let energyTotal = 2700
   // Parametros para el TTS. De momento están fijos. voy a trabajar en hacerlos customizables  
-  var TTS_params = { language: (route.params.Lang == "english") ? "en" : "es", pitch: 1.0, rate: 1 }
+  
 
   const [modalVisibility, setModalVisibility] = useState(false);
   const [TTS_Text, setTTS_Text] = useState("");
   const [isPaused, setIsPaused] = useState(true);
   const [playIcon, setPlayIcon] = useState("play");
   const [hasPlayed, setHasPlayed] = useState(false);
+  const [TTS_Rate, setTTS_Rate] = useState(1);
 
+  var TTS_params = { language: (route.params.Lang == "english") ? "en" : "es", pitch: 1.0, rate: TTS_Rate }
 
   useEffect(() => {
     energyFunction()
@@ -80,53 +83,53 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
   }
 
   const onSend = useCallback((newMessage = []) => {
-  let message:any = []
-  newMessage[0].correction = 0
-  // setMessages(messages => GiftedChat.append(messages, newMessage)) // añade los mensajes del usuario en el chat
-	console.log("NewMessage: ",newMessage) // mensaje enviado por usuario, enviar a la API
-  console.log("Inicio: ",messages) // mensaje enviado por usuario, enviar a la API
-  let usr_msj  = newMessage[0].text
-	const requestOptions = { 
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({
-				msg: usr_msj,
-				user_id: uid,
-        lng: route.params.Lang
-		})
-	}
-	try { // se envia mensaje a la api
-		return fetch('http://gepartner-app.herokuapp.com/api/', requestOptions)
-		.then(response => {return response.json();})
-		.then(data => {
-    console.log("Inter: ",messages) // mensaje enviado por usuario, enviar a la API
-    if (data.correction != ""){  // si existe una corrección, la ia responde con lo corregido
-      newMessage[0].correction = 1;
-      setMessageCorrection(data.correction)
-      } else if (data.correction == "" && data.msg != ""){
-        let bot_id = 5 + uid
-        let bid = data.bid === undefined ? Math.floor(Math.random() * 10000) + 1 : data.bid
-        let openai_response = {
-          _id: bid,
-          text: data.msg,
-          createdAt: new Date(),
-          user: {
-            _id: bot_id,
-            name: 'React Native',
-            avatar: require('../assets/users/robot-babbage.png'),
-          },
-        } as any
-        message.push(openai_response)
-      }
-    let mid = data.mid === undefined ? Math.floor(Math.random() * 10000) + 1 : data.mid
-    newMessage[0]._id = mid
-    message.push(newMessage[0])
-    console.log("End: ",message); // mensaje enviado por usuario, enviar a la API
-    setMessages(messages => GiftedChat.append(messages, message))
-    energyFunction()
-    });
-
-	}
+    let message:any = []
+    newMessage[0].correction = 0
+    // setMessages(messages => GiftedChat.append(messages, newMessage)) // añade los mensajes del usuario en el chat
+    console.log("NewMessage: ",newMessage) // mensaje enviado por usuario, enviar a la API
+    console.log("Inicio: ",messages) // mensaje enviado por usuario, enviar a la API
+    let usr_msj  = newMessage[0].text
+    const requestOptions = { 
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+          msg: usr_msj,
+          user_id: uid,
+          lng: route.params.Lang
+      })
+    }
+    try { // se envia mensaje a la api
+      return fetch('http://gepartner-app.herokuapp.com/api/', requestOptions)
+      .then(response => {return response.json();})
+      .then(data => {
+      console.log("Inter: ",messages) // mensaje enviado por usuario, enviar a la API
+      if (data.correction != ""){  // si existe una corrección, la ia responde con lo corregido
+        newMessage[0].correction = 1;
+        setMessageCorrection(data.correction)
+        } else if (data.correction == "" && data.msg != ""){
+          let bot_id = 5 + uid
+          let bid = data.bid === undefined ? Math.floor(Math.random() * 10000) + 1 : data.bid
+          let openai_response = {
+            _id: bid,
+            text: data.msg,
+            createdAt: new Date(),
+            user: {
+              _id: bot_id,
+              name: 'React Native',
+              avatar: require('../assets/users/robot-babbage.png'),
+            },
+          } as any
+          message.push(openai_response)
+        }
+      let mid = data.mid === undefined ? Math.floor(Math.random() * 10000) + 1 : data.mid
+      newMessage[0]._id = mid
+      message.push(newMessage[0])
+      console.log("End: ",message); // mensaje enviado por usuario, enviar a la API
+      setMessages(messages => GiftedChat.append(messages, message))
+      energyFunction()
+      });
+  
+    }
   
 	
 	catch (error){
@@ -289,7 +292,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
 
 
   const PlayTTS = () => {
-    if (!Platform.OS === "android") {
+    if (!(Platform.OS === "android")) {
       if (isPaused) {
         setIsPaused(false);
         setPlayIcon("pause");
@@ -368,15 +371,30 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
             <IconButton style={{position:'absolute', right:10}} icon="close" onPress={() => { CloseTTS() }} />
           
             <ScrollView style={styles.TextStyle}> 
-              <Text style={{fontSize: 18}}> "{TTS_Text}" </Text>
+              <Text style={{fontSize: 18, paddingBottom:5, paddingTop:5, textAlign: 'center',}}> "{TTS_Text}" </Text>
             </ScrollView>
 
             {/* Rows para colocar botones. */ }
             <View style={[styles.row, styles.rowTTS]}>
-              <IconButton style={styles.MenuTTS_button} icon={playIcon} onPress={() => { PlayTTS() }} />
-              <IconButton style={styles.MenuTTS_button} icon="stop" onPress={() => { StopTTS() }} />
-              <IconButton style={styles.MenuTTS_button} icon="umbrella-closed" onPress={() => { setModalVisibility(!modalVisibility) }} />
+              <IconButton style={styles.MenuTTS_button} icon={playIcon} size={ 25 } onPress={() => { PlayTTS() }} />
+              <IconButton style={[styles.MenuTTS_button, {marginLeft: 50, marginRight: 20}]} size={ 25 } icon="stop" onPress={() => { StopTTS() }} />
+              {/*<IconButton style={styles.MenuTTS_button} icon="umbrella-closed" onPress={() => { setModalVisibility(!modalVisibility) }} />*/}
             </View>           
+            { /* Slider de velocidad de lectura TTS*/}
+            <View style={styles.SliderContainter}>
+              <View style={styles.row}>
+
+                <Text>Velocidad: x{ TTS_Rate }</Text>
+                <Slider style={styles.Slider}
+                  value={TTS_Rate}
+                  onValueChange={setTTS_Rate}
+                  maximumValue={2.5}
+                  minimumValue={0.5}
+                  step={0.25}
+                />
+              </View>
+              
+            </View>
           </View>
         </View>
       </Modal>
@@ -428,8 +446,8 @@ const styles = StyleSheet.create({
   },
   rowTTS: {
     position: 'absolute',
-    bottom: 10,
-    backgroundColor: "#f2f2f2"
+    bottom: 40,
+    backgroundColor: "#f2f2f2",
   },
 
   MenuTTS:{
@@ -442,14 +460,20 @@ const styles = StyleSheet.create({
     borderRadius:10,
     borderWidth: 2,
     borderColor: '#000000',
-    maxHeight: "60%"
+    maxHeight: "65%"
   },
   TextStyle: {
     position: 'relative',
-    marginBottom: 60,
+    width: "90%",
+    marginBottom: 85,
     marginTop: 40,
-    marginLeft: 20,
-    marginRight: 20,
+    marginLeft: 10,
+    marginRight: 10,
+    paddingLeft: 10,
+    paddingRight: 10,
+    borderWidth: 1,
+    borderRadius:3,
+    borderColor: "gray",
     color: "#000000",
     textAlign: 'center',
     overflow: 'scroll',
@@ -459,6 +483,22 @@ const styles = StyleSheet.create({
   MenuTTS_button: {
     height: 30,
     width: 30
+  },
+  SliderContainter: {
+    //height: 25,
+    position:'absolute',
+    bottom: 5,
+    width: "100%",
+    alignItems: 'center',
+    paddingBottom: 10,
+    overflow: 'visible'
+  },
+  Slider: {
+    width: "75%",
+    maxWidth: 400,
+    height: 20,
+    alignItems: 'center',
+    overflow:'visible'
   },
   container: {
     position: 'absolute',
