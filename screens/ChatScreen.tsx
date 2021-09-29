@@ -163,6 +163,12 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
   const renderSend = (props:any) => {
     return (
       <Send {...props}>
+             <View style={styles.container}>
+      <Button 
+       title="Traducir"
+       color="blue"
+       onPress={() => translateFunction(props.text)}/>
+    </View>
         <View>
           <Ionicons
             name="paper-plane-outline"
@@ -233,7 +239,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
       .then(data => {
         console.log(data)
         //alert("La traducción de: \n" + message + "\n\n" + " es: \n" + data.msg)
-        Alert.alert("Traduccion", "La traducción de: \n" + message + "\n\n" + " es: \n" + data.msg)
+        alert("La traducción de: \n" + message + "\n" + " es: \n" + data.msg)
         });
       }
       catch (error){
@@ -440,5 +446,13 @@ const styles = StyleSheet.create({
   MenuTTS_button: {
     height: 30,
     width: 30
+  },
+  container: {
+    position: 'absolute',
+    right: 120,
+    height: 20,
+    width: 90,
+    flex: 1  
   }
+
 });
