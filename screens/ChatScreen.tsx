@@ -1,11 +1,9 @@
-import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
 import React, { useCallback, useEffect, useState } from 'react';
-import { Button, StyleSheet, View, Text } from 'react-native';
+import { Button, Clipboard, StyleSheet, Text, View } from 'react-native';
 import { Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { Clipboard } from 'react-native'
-import { ProgressBar, Colors } from 'react-native-paper';
+import { Colors, ProgressBar } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function ChatScreen({navigation, route}: {navigation: any, route: any}) {
@@ -284,13 +282,17 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
 
 
   return (
-    <View style={{flex: 1, paddingRight: 20}}>
-      <View style={{paddingRight: 10}}>
-        <Text style={{textAlign: "center"}}>Energia {energyLocal.toString()}</Text>
-        <ProgressBar progress={energyLocal/energyTotal} color={Colors.red800} />
+    <View style={{ flex: 1 }}>
+
+      <View style={styles.row}>
+        <View style={{marginTop: 15, marginRight: 40, marginLeft: 40, flexGrow:1}}>
+          <Text style={{width: "90%", textAlign: "center"}}>Energia restante: {energyLocal.toString()}</Text>
+          <ProgressBar style={{width: "90%"}} progress={energyLocal/energyTotal} color={Colors.red800} />
+        </View>
+        <Icon style={{marginRight: 35, marginTop: 15}} onPress={() => { handlerPress() }} name="ellipsis-v" size={30} />
       </View>
-      <Icon /*style={{marginRight: '20px'}}*/ onPress={() => {handlerPress()}} name="ellipsis-v" size={30}/>
-        <GiftedChat
+
+      <GiftedChat
         messages={messages}
         onSend={messages => onSend(messages)}
         user={{
@@ -315,5 +317,12 @@ const styles = StyleSheet.create({
     margin: 20,
     flexDirection: 'row',
     justifyContent: 'flex-end'
-  }
+  },
+  row: {
+    flex: 1,
+    flexDirection: "row",
+    alignSelf: "flex-start",
+    maxHeight: 50,
+    backgroundColor: "#f5f5f5"
+  },
 });
