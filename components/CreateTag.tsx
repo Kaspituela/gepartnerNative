@@ -13,8 +13,9 @@ const Tags = [
   },
 ]
 
-export default function CreateTag () {
+export default function CreateTag ({route}: {route: any}) {
 	const selectedTags = tags => {
+    console.log(route.params.currMessage)
 		console.log(tags);
 	};
 	return (

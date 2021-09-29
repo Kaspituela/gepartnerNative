@@ -49,6 +49,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
           user: {
             _id: newdata[i].user_id,
           },
+          tags: newdata[i].tags,
         } as any
         
         if(newdata[i].user_id === bot_id){
@@ -253,7 +254,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
                 TTS_message(message.text)
                 break;
             case 2:
-                navigation.navigate('CreateTag')
+                navigation.navigate('CreateTag', {currMessage: message})
                 break;
             case 3:
                 Clipboard.setString(message.text);
@@ -284,7 +285,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
 
   return (
     <View style={{flex: 1, paddingRight: 20}}>
-      <View style={{paddingRight: 10, width: "150px"}}>
+      <View style={{paddingRight: 10}}>
         <Text style={{textAlign: "center"}}>Energia {energyLocal.toString()}</Text>
         <ProgressBar progress={energyLocal/energyTotal} color={Colors.red800} />
       </View>
