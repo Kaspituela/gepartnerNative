@@ -3,7 +3,7 @@ import Slider from '@react-native-community/slider';
 import * as Speech from 'expo-speech';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Component } from 'react';
-import { Button, Clipboard, Modal, Platform, StyleSheet, Text, View } from 'react-native';
+import { Button, Clipboard, Modal, Platform, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
 import { Colors, IconButton, ProgressBar } from 'react-native-paper';
@@ -168,16 +168,18 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
     return (
       <Send {...props}>
         <View>
-          <Button 
-          title="Traducir"
-          color="blue"
-          onPress={() => translateFunction(props.text)}/>
           <Ionicons
             name="paper-plane-outline"
-            style={{marginBottom: 10, marginRight: 10}}
+            style={{marginBottom: 10, marginRight: 90}}
             size={24}
             color="#616161"
           />
+        <TouchableOpacity
+        style={styles.container}
+        onPress={() => translateFunction(props.text)}
+      >
+        <Text>Traducir</Text>
+      </TouchableOpacity>
         </View>
       </Send>
     );
@@ -500,10 +502,12 @@ const styles = StyleSheet.create({
   },
   container: {
     position: 'absolute',
-    right: 120,
+    right: 10,
     height: 20,
-    width: 90,
-    flex: 1  
+    width: 70,
+    flex: 1,  
+    backgroundColor: "#DDDDDD",
+    alignItems: 'center'
   }
 
 });
