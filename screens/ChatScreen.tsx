@@ -56,7 +56,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
         let newMessage = {
           _id: newdata[i].id,
           text: newdata[i].content,
-          createdAt: new Date(),
+          createdAt: 0,
           user: {
             _id: newdata[i].user_id,
           },
@@ -85,6 +85,8 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
   const onSend = useCallback((newMessage = []) => {
     let message:any = []
     newMessage[0].correction = 0
+    newMessage[0].tags = []
+    newMessage[0].createdAt = 0
     // setMessages(messages => GiftedChat.append(messages, newMessage)) // añade los mensajes del usuario en el chat
     console.log("NewMessage: ",newMessage) // mensaje enviado por usuario, enviar a la API
     console.log("Inicio: ",messages) // mensaje enviado por usuario, enviar a la API
@@ -112,12 +114,13 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
           let openai_response = {
             _id: bid,
             text: data.msg,
-            createdAt: new Date(),
+            createdAt: 0,
             user: {
               _id: bot_id,
               name: 'React Native',
               avatar: require('../assets/users/robot-babbage.png'),
             },
+            tags: [],
           } as any
           message.push(openai_response)
         }
@@ -195,11 +198,12 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
     let newMessage = [{
       	_id: Math.floor(Math.random() * 10000) + 1,
       	text: messageCorrection,
-      	createdAt: new Date(),
+      	createdAt: 0,
       	user: {
       		_id: uid,
       	},
         correction: 0,
+        tags: [],
     } as any]
     console.log(newMessage)
     onSend(newMessage)
