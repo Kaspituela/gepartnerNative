@@ -231,13 +231,23 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
     if(uid === 0){
       alert("Funcion Premium")
     } else{
+      let source;
+      let destiny;
+      if (route.params.Lang == "english"){
+        source = 'en'
+        destiny = 'es'
+      }
+      else{
+        source = 'es'
+        destiny = 'en'
+      }
       const requestTranslate = { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           msg: message,
-          src: 'en',
-          dest: 'es'
+          src:  source,
+          dest: destiny
         })
         }
         try { // Llamada a la api para translate -> http://gepartner-app.herokuapp.com/translation/
