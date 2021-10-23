@@ -1,16 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Modal, StyleSheet, Text, View } from 'react-native';
+import { IconButton } from 'react-native-paper';
 
-import {
-    Card,
-    Container,
-    LevelImg,
-    LevelInfo,
-    LevelName,
-    LevelText,
-    LevelWrapper,
-    TextSection,
-} from '../styles/CapsuleStyle';
+import { Card, CardInformation, Container, LevelImg, LevelInfo, LevelName } from '../styles/CapsuleStyle';
 
 export default function LanguageScreen({navigation, route}: {navigation: any, route: any}) {
     var userIsPremium = false;
@@ -20,21 +12,51 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
     var nivelIdioma = 0;
     var langFlag = route.params.langFlag;    
 
+    const [modalVisibility, setModalVisibility] = useState(false);
+
+    // Conjuntos de capsulas según nivel del usuario (Basico, Intermedio, Avanzado)
     const [bCapsules, set_bCapsules] = useState<any>([]);
     const [iCapsules, set_iCapsules] = useState<any>([]);
     const [aCapsules, set_aCapsules] = useState<any>([]);
+
+    // Capsulas marcadas como favoritas por el usuario.
+    const [favCapsules, set_favCapsules] = useState<any>([]);
+
+    /* Contenido de una capsula:
+        Object{
+            "desc",     -> string;  descripcion de la capsula
+            "id"        -> int;     id de la capsula
+            "level"     -> int;     nivel de idioma requerido para acceder a la capsula
+            "name"      -> string;  nombre de la capsula
+            "premium"   -> bool;    si la capsula es solo para usuarios premium     // Indicar con corona
+            "resource"  -> IDK ¿?
+
+            // posible contenido futuro
+
+            "nota"          -> int?; nota de completitud de la capsula
+            "completada"    -> bool; está completada o no               // Señalar con alguna coloracion
+            "favorita"      -> bool; está marcada como favorita o no.   // Renderizar un icono de "estrella vacia" para las no favoritas, reemplazar al marcar.
+        }
+    */
+
+    // El menú de capsulas mostrará renderedCapsules en el menú. De esta forma la funcion solo se necesita ajustar a esta variable, 
+    // y las demás solo almacenaran los datos, cargandose cuando sea necesario.
+    
+    const [renderedCapsules, setRenderedCapsules] = useState<any>([]);
     
     const [membership, setMembership] = useState(false);
 
     // Se cargan las capsulas desde la API segun el idioma seleccionado por el usuario.
     useEffect(() => {
 
+        // Obtener si el usuario tiene una membresia premium.
         fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId)
         .then(response => {return response.json();})
         .then(data => {
           setMembership(data.user.membership);
         });
 
+        // Capsulas disponibles en el idioma seleccionado
         fetch('http://gepartner-app.herokuapp.com/caps?lang=' + lang)
         .then(response => { return response.json(); })
         .then(data => {
@@ -43,6 +65,7 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
             var capsulasI:any[] = [];
             var capsulasA:any[] = [];
 
+            // Datos del JSON de capsulas del idioma.
             data.capsules.forEach((item: any) => {
 
                 switch (item.level) {
@@ -56,22 +79,23 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
                         capsulasA.push(item);
                         break;
                 }            
-            }) // Datos del JSON de capsulas del idioma.
-
+            }) 
             set_bCapsules(capsulasB);
             set_iCapsules(capsulasI);
-            set_aCapsules(capsulasA);
-            
-            //console.log(data.capsules);
-            //setCapsulas(data.capsules);
-            //console.log(Capsulas);
-            
+            set_aCapsules(capsulasA);            
         });
+
+        // Obtener indice de capsulas favoritas
+        
+        //fetch('http://gepartner-app.herokuapp.com/)
+        //.then(response => {return response.json();})
+        //.then(data => {
+        //  set_favCapsules();
+        //});
     }, [])
 
 
-    const [Languages, setLanguages] = useState([
-        {
+    const capsuleLevels = [{
             id: '0',
             levelName: 'Basico',
             FlagImg: require('../assets/capsuleAssets/basico.png'),
@@ -86,22 +110,28 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
             levelName: 'Avanzado',
             FlagImg: require('../assets/capsuleAssets/avanzado.png'),
             bgColor: 'white',
-        }
-    ]);
+        }];
 
+    
+    // Cambia el renderer para mostrar las capsulas seleccionadas en el visor de capsulas.
     const renderCapsules = (nivelCapsula:string) => {
-        console.log(nivelCapsula);
+        console.log(modalVisibility);
         switch (parseInt(nivelCapsula, 10)) {
             case 0:
-                console.log(bCapsules);
+                setRenderedCapsules(bCapsules);
                 break;
             case 1:
-                console.log(iCapsules);
+                setRenderedCapsules(iCapsules);
                 break;
             case 2:
-                console.log(aCapsules);
+                setRenderedCapsules(aCapsules);
                 break;
         }  
+        setModalVisibility(true);
+    }
+
+    const renderFavCapsules = () => {
+        
     }
 
 
@@ -112,34 +142,51 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
 
     return (
         <Container>
+
+            {/* Renderer del menú de capsulas*/}
+            <Modal
+                transparent={true}
+                animationType={"slide"}
+                visible={modalVisibility}
+                onRequestClose={() => { setModalVisibility(!modalVisibility) }} >
+                {/* Diseño del tamaño completo de la pantalla */}
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+
+                    { /* Vista del cuadro interno del Modal */}
+                    <View style={styles.capsuleModal}>
+                        <IconButton style={{position:'absolute', right:10}} icon="close" onPress={() => { setModalVisibility(!modalVisibility); }} />
+                    </View>
+
+                    
+                </View>
+            </Modal>
+
+
+
+
             <View style={styles.Bienvenida}>
                 <Text style={styles.p1}>DEBUG INFO</Text>
                 <Text style={styles.p1}>Tipo de usuario: {membership.toString()}</Text>
                 <Text style={styles.p2}>Nivel de idioma: { nivelIdioma }.</Text>
             </View>
-            <FlatList style={{height: "100%"}}
-            data={Languages}
-            keyExtractor={item=>item.id}
+            <FlatList style={styles.flatlist}
+                contentContainerStyle={{ alignItems: 'center'}}
+                data={capsuleLevels}
+                keyExtractor={item=>item.id}
                 renderItem={({ item }) => (
-            
-            <Card onPress={() => { renderCapsules(item.id) }}  style={[(nivelIdioma >= parseInt(item.id, 10)) ? styles.bgWhite : styles.bgGray]}>
-                <LevelInfo>
-                    <LevelWrapper>    
-                        
-                        <LevelImg source={langFlag} style={{opacity: 0.7}}/>
-                        <LevelImg source={item.FlagImg} style={{ top: -80 }} />
-                        
-                        <TextSection>
-                            <LevelText>
+                
+                <Card onPress={() => { renderCapsules(item.id) }}  style={[(nivelIdioma >= parseInt(item.id, 10)) ? styles.bgWhite : styles.bgGray]}>
+                    <LevelInfo>   
+                            <CardInformation>
+                                <LevelImg source={langFlag} style={{opacity: 1}}/>
+                                <LevelImg source={item.FlagImg} style={{ position:'absolute'}} />
+                                
                                 <LevelName>{item.levelName}</LevelName>
-                            </LevelText>
-                        </TextSection>
-
-                    </LevelWrapper>
-                </LevelInfo>
-            </Card>
-            )}
-        />
+                            </CardInformation>
+                    </LevelInfo>
+                </Card>
+                )}
+            />
         </Container>
     )
 }
@@ -158,9 +205,28 @@ const styles = StyleSheet.create({
       fontSize: 15,
     },
     bgGray: {
-      backgroundColor: 'gray',
+        backgroundColor: '#afafaf',
     },
     bgWhite: {
         backgroundColor: 'white',
     },
-  });
+    capsuleModal: {
+        //justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: "#f2f2f2",
+        //height: "40%",
+        //minHeight: 250,
+        width: "90%",
+        borderRadius: 10,
+        borderWidth: 2,
+        borderColor: '#000000',
+        maxHeight: "90%",
+        minHeight: 100,
+    },
+    flatlist: {
+        paddingTop: 20,
+        width: '100%',
+    }
+});
+  
+            

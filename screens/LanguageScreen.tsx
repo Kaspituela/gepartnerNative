@@ -4,8 +4,10 @@ import { Button, FlatList, StyleSheet, Text, View } from 'react-native';
 import { Card, Container, FlagImg, FlagImgWrapper, FlagInfo, FlagText, Language, TextSection } from '../styles/FlagStyle';
 
 export default function LanguageScreen({navigation}: {navigation: any}) {
-  let uid = 0
-  const [Languages, setLanguages] = useState([
+  let uid = 1;
+  
+  //const [Languages, setLanguages] = useState([
+  const Languages = [
     {
       id: '0',
       Lang: 'Español',
@@ -20,7 +22,7 @@ export default function LanguageScreen({navigation}: {navigation: any}) {
       bgColor: 'white',
       SetLang: 'english',
     },
-  ]);
+  ];//);
 
   /*const pressHandler = (item) => {
       console.log(item.SetLang)
@@ -28,7 +30,7 @@ export default function LanguageScreen({navigation}: {navigation: any}) {
   }*/
 
   const fijarUid = (num:any) => {
-    let text = num === 0 ? "Gratuito" : "Premium"
+    let text = num === 1 ? "Gratuito" : "Premium"
     uid = num;
     alert("Usuario " + text);
   }
