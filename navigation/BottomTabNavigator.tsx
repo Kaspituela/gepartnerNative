@@ -9,14 +9,13 @@ import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
 
 import CreateTag from '../components/CreateTag';
+import FilterTag from '../components/FilterTag';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import CapsulasScreen from '../screens/CapsulaScreen';
 import ChatScreen from '../screens/ChatScreen';
 import EstadisticaScreen from '../screens/EstadisticaScreen';
 import { BottomTabParamList, CapsulasParamList, ChatParamList, EstadisticaParamList } from '../types';
-import { Language } from '../styles/FlagStyle';
-import FilterTag from '../components/FilterTag';
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -34,18 +33,21 @@ const capitalize = (langName: string) => {
 
 export default function BottomTabNavigator({route}: {route: any}) {
   const colorScheme = useColorScheme();
-  let language:string = 'null';
-  if(route.params === undefined){
+
+  let language: string = 'null';
+  let currentUserId: any = 0;
+  let flag: any = 'null';
+  
+  if (route.params === undefined) {
     language = 'spanish';
-  } else{
-    language = route.params.lang;
-  }
-  let currentUserId:any = 0;
-  if(route.params === undefined){
     currentUserId = 0;
-  } else{
+    flag = require('../assets/flags/Spain-Flag-icon.png')
+  } else {
+    language = route.params.lang;
     currentUserId = route.params.cUserId;
+    flag = route.params.langFlag;
   }
+
   return (
     <BottomTab.Navigator
       initialRouteName="Chat"
@@ -65,7 +67,7 @@ export default function BottomTabNavigator({route}: {route: any}) {
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="build-outline" color={color} />,
         }}
-        initialParams={{Lang: language, cUserId: currentUserId}}
+        initialParams={{Lang: language, cUserId: currentUserId, langFlag: flag}}
       />
       <BottomTab.Screen
         name="Estadistica"
@@ -125,6 +127,7 @@ function CapsulasNavigator({route}: {route: any}) {
   let language = route.params.Lang;
   let currentUserId = route.params.cUserId;
   let textPremium = currentUserId === 0 ? "Gratuito" : "Premium";
+  let flag = route.params.langFlag;
 
   return (
     <CapsulasTab.Navigator>
@@ -132,7 +135,7 @@ function CapsulasNavigator({route}: {route: any}) {
         name="CapsulasScreen"
         component={CapsulasScreen}
         options={{ headerTitle: 'Capsulas - '+ capitalize(language)+' - '+textPremium}}
-        initialParams={{Lang: language}}
+        initialParams={{Lang: language, cUserId: currentUserId, langFlag: flag}}
       />
     </CapsulasTab.Navigator>
   );

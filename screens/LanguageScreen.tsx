@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { FlatList, StyleSheet, Text, View, Button } from 'react-native';
+import { Button, FlatList, StyleSheet, Text, View } from 'react-native';
+
 import { Card, Container, FlagImg, FlagImgWrapper, FlagInfo, FlagText, Language, TextSection } from '../styles/FlagStyle';
 
 export default function LanguageScreen({navigation}: {navigation: any}) {
@@ -29,7 +30,7 @@ export default function LanguageScreen({navigation}: {navigation: any}) {
   const fijarUid = (num:any) => {
     let text = num === 0 ? "Gratuito" : "Premium"
     uid = num;
-    alert("Usuario "+text)
+    alert("Usuario " + text);
   }
 
   return (
@@ -39,15 +40,15 @@ export default function LanguageScreen({navigation}: {navigation: any}) {
             <Text style={styles.p2}>Para comenzar, elige un idioma que quieras poner en práctica.</Text>
         </View>
         <View style = {styles.premium}>
-          <Button title={"Gratuito"}  onPress={() => fijarUid(0)}/>
-          <Button title={"Premium"}  onPress={() => fijarUid(1)}/>
+          <Button title={"Gratuito"}  onPress={() => fijarUid(1)}/>
+          <Button title={"Premium"}  onPress={() => fijarUid(2)}/>
         </View>
       <FlatList 
         data={Languages}
         keyExtractor={item=>item.id}
         renderItem={({ item }) => (
           
-          <Card onPress={() => navigation.navigate('Root', {lang: item.SetLang, cUserId: uid })}>
+          <Card onPress={() => navigation.navigate('Root', {lang: item.SetLang, cUserId: uid, langFlag: item.FlagImg})}>
               <FlagInfo>
 
                 <FlagImgWrapper >

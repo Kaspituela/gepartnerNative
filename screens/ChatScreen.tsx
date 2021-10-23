@@ -3,7 +3,7 @@ import Slider from '@react-native-community/slider';
 import * as Speech from 'expo-speech';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Component } from 'react';
-import { Button, Clipboard, Modal, Platform, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { Button, Clipboard, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
 import { Colors, IconButton, ProgressBar } from 'react-native-paper';
@@ -11,15 +11,14 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 
 export default function ChatScreen({navigation, route}: {navigation: any, route: any}) {
-  let uid = route.params.cUserId
+  let uid = route.params.cUserId;
+  
   const [inputText,setinputText] = useState("")
   const [messageCorrection, setMessageCorrection] = useState('')
   const [messages, setMessages] = useState([])
-  const [energyLocal, setEnergyLocal] = useState(2700)
+  const [energyLocal, setEnergyLocal] = useState(0);
 
-  let energyTotal = 2700
-  // Parametros para el TTS. De momento están fijos. voy a trabajar en hacerlos customizables  
-  
+  let energyTotal = 2700;
 
   const [modalVisibility, setModalVisibility] = useState(false);
   const [TTS_Text, setTTS_Text] = useState("");
@@ -30,21 +29,31 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
 
   var TTS_params = { language: (route.params.Lang == "english") ? "en" : "es", pitch: 1.0, rate: TTS_Rate }
 
+  const [membership, setMembership] = useState(false);
+
   useEffect(() => {
-    energyFunction()
     let lang = route.params.Lang == 'english' ? 0 : 1
     
     const requestOptions = { 
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
     }
-    console.log(requestOptions)
+    //console.log(requestOptions)
     let bot_id = 5 + uid
     fetch('http://gepartner-app.herokuapp.com/msg?lng=' + lang + '&uid=' + uid + '&bid='+bot_id, requestOptions)
 		.then(response => {return response.json();})
 		.then(data => {
       let newdata = data.user.concat(data.bot);
       addMessages(newdata)
+    });
+
+    fetch('http://gepartner-app.herokuapp.com/user?uid=' + uid , requestOptions)
+    .then(response => {return response.json();})
+    .then(data => {
+      let en = data.user.energy;
+      //console.log(en);
+      setEnergyLocal(en);
+      setMembership(data.user.membership);
     });
   }, [])
 
@@ -149,10 +158,9 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
     fetch('http://gepartner-app.herokuapp.com/user?uid=' + uid , requestEnergy)
     .then(response => {return response.json();})
     .then(data => {
-      let en = data.user.energy
-      console.log(en)
-      setEnergyLocal(en)
-
+      let en = data.user.energy;
+      console.log(en);
+      setEnergyLocal(en);
     });
   }
 
@@ -232,7 +240,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
   };
 
   const translateFunction = (message:any) => {
-    if(uid === 0){
+    if(!membership){
       alert("Funcion Premium")
     } else{
       let source;
@@ -280,16 +288,16 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
     }, (buttonIndex:any) => {
         switch (buttonIndex) {
           case 0:
-            if(uid === 0){
+            if(membership == false){
               alert("Funcion Premium")
-            } else if(uid === 1){
+            } else if(membership == true){
               translateFunction(message.text)
             }
             break;
           case 1:
-            if(uid === 0){
+            if(membership == false){
               alert("Funcion Premium")
-            } else if(uid === 1){
+            } else if(membership == true){
               setTTS_Text(message.text);
               setModalVisibility(true);
             }
@@ -364,7 +372,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
 
       <View style={[styles.row, styles.rowEnergy]}>
         <View style={{marginTop: 15, marginRight: 30, marginLeft: 40, flexGrow:1}}>
-          <Text style={{width: "95%", textAlign: "center"}}>Energia restante: {energyLocal.toString()}</Text>
+          <Text style={{width: "95%", textAlign: "center"}}>Energia restante: {energyLocal}</Text>
           <ProgressBar style={styles.progressBar} progress={energyLocal/energyTotal} color={Colors.red800} />
         </View>
         <Icon style={{marginRight: 30, marginTop: 18}} onPress={() => { handlerPress() }} name="ellipsis-v" size={30} />
