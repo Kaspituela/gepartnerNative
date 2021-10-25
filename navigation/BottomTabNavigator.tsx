@@ -14,6 +14,9 @@ import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import CapsulasScreen from '../screens/CapsulaScreen';
 import ChatScreen from '../screens/ChatScreen';
+import VocabularyScreen from '../screens/VocabularyScreen';
+import ChatPerScreen from '../screens/ChatPerScreen';
+import ActivityScreen from '../screens/ActivityScreen';
 import EstadisticaScreen from '../screens/EstadisticaScreen';
 import { BottomTabParamList, CapsulasParamList, ChatParamList, EstadisticaParamList } from '../types';
 
@@ -139,6 +142,24 @@ function CapsulasNavigator({route}: {route: any}) {
         name="CapsulasScreen"
         component={CapsulasScreen}
         options={{ headerTitle: 'Capsulas - '+ capitalize(language)+' - '+textPremium}}
+        initialParams={{Lang: language, cUserId: currentUserId, langFlag: flag, isPremium: membership}}
+      />
+      <CapsulasTab.Screen
+        name="VocabularyScreen"
+        component={VocabularyScreen}
+        options={{ headerTitle: 'Vocabulario - '+ capitalize(language)+' - '+textPremium}}
+        initialParams={{Lang: language, cUserId: currentUserId, langFlag: flag, isPremium: membership}}
+      />
+      <CapsulasTab.Screen
+        name="ChatPerScreen"
+        component={ChatPerScreen}
+        options={{ headerTitle: 'Chat Personalizado - '+ capitalize(language)+' - '+textPremium}}
+        initialParams={{Lang: language, cUserId: currentUserId, langFlag: flag, isPremium: membership}}
+      />
+      <CapsulasTab.Screen
+        name="ActivityScreen"
+        component={ActivityScreen}
+        options={{ headerTitle: 'Actividad - '+ capitalize(language)+' - '+textPremium}}
         initialParams={{Lang: language, cUserId: currentUserId, langFlag: flag, isPremium: membership}}
       />
     </CapsulasTab.Navigator>
