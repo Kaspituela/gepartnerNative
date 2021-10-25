@@ -37,6 +37,7 @@ export default function BottomTabNavigator({route}: {route: any}) {
   let language: string = 'null';
   let currentUserId: any = 0;
   let flag: any = 'null';
+  let membership = false;
   
   if (route.params === undefined) {
     language = 'spanish';
@@ -46,6 +47,7 @@ export default function BottomTabNavigator({route}: {route: any}) {
     language = route.params.lang;
     currentUserId = route.params.cUserId;
     flag = route.params.langFlag;
+    membership = route.params.isPremium;
   }
 
   return (
@@ -59,7 +61,7 @@ export default function BottomTabNavigator({route}: {route: any}) {
           tabBarVisible: getTabBarVisibility(route),
           tabBarIcon: ({ color }) => <TabBarIcon name="chatbox-ellipses-outline" color={color} />,
         })}
-        initialParams={{Lang: language, cUserId: currentUserId}}
+        initialParams={{Lang: language, cUserId: currentUserId, isPremium: membership}}
       />
       <BottomTab.Screen
         name="Capsulas"
@@ -67,7 +69,7 @@ export default function BottomTabNavigator({route}: {route: any}) {
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="build-outline" color={color} />,
         }}
-        initialParams={{Lang: language, cUserId: currentUserId, langFlag: flag}}
+        initialParams={{Lang: language, cUserId: currentUserId, langFlag: flag, isPremium: membership}}
       />
       <BottomTab.Screen
         name="Estadistica"
@@ -75,7 +77,7 @@ export default function BottomTabNavigator({route}: {route: any}) {
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="build-outline" color={color} />,
         }}
-        initialParams={{Lang: language, cUserId: currentUserId}}
+        initialParams={{Lang: language, cUserId: currentUserId, isPremium: membership}}
       />
     </BottomTab.Navigator>
   );
@@ -94,7 +96,8 @@ const ChatTab = createStackNavigator<ChatParamList>();
 function ChatNavigator({route}: {route: any}) {
   let language = route.params.Lang;
   let currentUserId = route.params.cUserId;
-  let textPremium = currentUserId === 0 ? "Gratuito" : "Premium";
+  let membership = route.params.isPremium;
+  let textPremium = membership ? "Premium" : "Gratuito";
   
   return (
     <ChatTab.Navigator>
@@ -102,7 +105,7 @@ function ChatNavigator({route}: {route: any}) {
         name="ChatScreen"
         component={ChatScreen}
         options={{ headerTitle: 'Chat - '+ capitalize(language) +' - '+textPremium}}
-        initialParams={{Lang: language, cUserId: currentUserId}}
+        initialParams={{Lang: language, cUserId: currentUserId, isPremium: membership}}
       />
       <ChatTab.Screen
         name="CreateTag"
@@ -126,7 +129,8 @@ const CapsulasTab = createStackNavigator<CapsulasParamList>();
 function CapsulasNavigator({route}: {route: any}) {
   let language = route.params.Lang;
   let currentUserId = route.params.cUserId;
-  let textPremium = currentUserId === 0 ? "Gratuito" : "Premium";
+  let membership = route.params.isPremium;
+  let textPremium = membership ? "Premium" : "Gratuito";
   let flag = route.params.langFlag;
 
   return (
@@ -135,7 +139,7 @@ function CapsulasNavigator({route}: {route: any}) {
         name="CapsulasScreen"
         component={CapsulasScreen}
         options={{ headerTitle: 'Capsulas - '+ capitalize(language)+' - '+textPremium}}
-        initialParams={{Lang: language, cUserId: currentUserId, langFlag: flag}}
+        initialParams={{Lang: language, cUserId: currentUserId, langFlag: flag, isPremium: membership}}
       />
     </CapsulasTab.Navigator>
   );
@@ -146,7 +150,8 @@ const EstadisticaTab = createStackNavigator<EstadisticaParamList>();
 function EstadisticaNavigator({route}: {route: any}) {
   let language = route.params.Lang;
   let currentUserId = route.params.cUserId;
-  let textPremium = currentUserId === 0 ? "Gratuito" : "Premium";
+  let membership = route.params.isPremium;
+  let textPremium = membership ? "Premium" : "Gratuito";
   
   return (
     <EstadisticaTab.Navigator>
@@ -154,7 +159,7 @@ function EstadisticaNavigator({route}: {route: any}) {
         name="EstadisticaScreen"
         component={EstadisticaScreen}
         options={{ headerTitle: 'Estadistica - '+ capitalize(language) +' - '+ textPremium}}
-        initialParams={{Lang: language}}
+        initialParams={{Lang: language, isPremium: membership, cUserId: currentUserId}}
       />
     </EstadisticaTab.Navigator>
   );

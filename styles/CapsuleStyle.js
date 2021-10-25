@@ -19,7 +19,7 @@ export const Card = styled.TouchableOpacity`
 `;
 
 export const CardInformation = styled.TouchableOpacity`
-  height: 130px;
+  height: 150px;
   align-items: center;
   justify-content: center;
 `;
@@ -42,7 +42,47 @@ export const LevelName = styled.Text`
   position: absolute;
   font-size: 35px;
   font-weight: bold;
-  bottom: 125px;
+  bottom: 140px;
+`;
+
+
+//  Seccion de capsulas dentro del Modal
+
+export const CapCard = styled.TouchableOpacity`
+  position: relative;
+  width: 100%;
+`;
+
+export const CapImgWrapper = styled.View`
+  padding-top: 15px;
+  padding-bottom: 15px;
+  `;
+
+export const CapImg = styled.Image`
+  position: relative;
+  width:  60px;
+  height: 60px;
+`;
+
+export const CapName = styled.Text`
+  position: relative;
+  font-size: 20px;
+  font-weight: bold;
+  left: -25px;
+  top: -5px;
+`;
+
+export const CapContainer = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
+export const CapText = styled.View`
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 0;
+  margin-left: 0px;
+  width: 70%;
 `;
 
 /*

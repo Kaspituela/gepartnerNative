@@ -4,9 +4,10 @@ import { Button, FlatList, StyleSheet, Text, View } from 'react-native';
 import { Card, Container, FlagImg, FlagImgWrapper, FlagInfo, FlagText, Language, TextSection } from '../styles/FlagStyle';
 
 export default function LanguageScreen({navigation}: {navigation: any}) {
-  let uid = 1;
   
-  //const [Languages, setLanguages] = useState([
+  let uid = 1;
+  let membership = false;
+
   const Languages = [
     {
       id: '0',
@@ -29,10 +30,17 @@ export default function LanguageScreen({navigation}: {navigation: any}) {
       navigation.navigate('ChatScreen', {lang:item.SetLang,})
   }*/
 
-  const fijarUid = (num:any) => {
-    let text = num === 1 ? "Gratuito" : "Premium"
+  const fijarUid = (num: number) => {
     uid = num;
-    alert("Usuario " + text);
+
+    fetch('http://gepartner-app.herokuapp.com/user?uid=' + num)
+    .then(response => {return response.json();})
+      .then(data => {
+        membership = data.user.membership;
+        let text = membership ? "Premium" : "Gratuito";
+        alert("Usuario " + text);
+    });
+  
   }
 
   return (
@@ -50,7 +58,7 @@ export default function LanguageScreen({navigation}: {navigation: any}) {
         keyExtractor={item=>item.id}
         renderItem={({ item }) => (
           
-          <Card onPress={() => navigation.navigate('Root', {lang: item.SetLang, cUserId: uid, langFlag: item.FlagImg})}>
+          <Card onPress={() => navigation.navigate('Root', {lang: item.SetLang, cUserId: uid, langFlag: item.FlagImg, isPremium: membership})}>
               <FlagInfo>
 
                 <FlagImgWrapper >

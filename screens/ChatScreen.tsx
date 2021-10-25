@@ -27,7 +27,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
 
   var TTS_params = { language: (route.params.Lang == "english") ? "en" : "es", pitch: 1.0, rate: TTS_Rate }
 
-  const [membership, setMembership] = useState(false);
+  var membership = route.params.isPremium;
   const [energyTotal, setEnergyTotal] = useState(900);
 
   useEffect(() => {
@@ -52,7 +52,6 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
       let en = data.user.energy;
       //console.log(en);
       setEnergyLocal(en);
-      setMembership(data.user.membership);
       if (membership) {
         setEnergyTotal(2700);
       }
