@@ -11,24 +11,21 @@
  import Colors from '../constants/Colors';
  import useColorScheme from '../hooks/useColorScheme';
  import ChatScreen from '../screens/ChatScreen';
- import LanguageScreen from '../screens/LanguageScreen';
+ import LoginScreen from '../screens/LoginScreen';
  import MessageScreen from '../screens/MessageScreen';
- import { LanguageParamList} from '../types';
+ import { LoginParamList} from '../types';
  
 
 
-const LanguageTab = createStackNavigator<LanguageParamList>();
+const LoginTab = createStackNavigator<LoginParamList>();
 
-export default function LanguageNavigator({route}: {route: any}) {
-  let uid = route.params.userid
+export default function LoginNavigator() {
   return (
-    <LanguageTab.Navigator>
-      <LanguageTab.Screen
-        name="LanguageScreen"
-        component={LanguageScreen}
-        options={{ headerTitle: 'Idiomas' }}
-        initialParams={{userId: uid}}
+    <LoginTab.Navigator>
+      <LoginTab.Screen
+        name="LoginScreen"
+        component={LoginScreen}
       />
-    </LanguageTab.Navigator>
+    </LoginTab.Navigator>
   );
 }

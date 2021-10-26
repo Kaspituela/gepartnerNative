@@ -5,6 +5,7 @@
 
 export type RootStackParamList = {
   Root: undefined;
+  Login: undefined;
   Language: undefined;
   NotFound: undefined;
 };
@@ -13,6 +14,10 @@ export type BottomTabParamList = {
   Chat: undefined;
   Capsulas: undefined;
   Estadistica: undefined;
+};
+
+export type LoginParamList = {
+  LoginScreen: undefined;
 };
 
 export type LanguageParamList = {
