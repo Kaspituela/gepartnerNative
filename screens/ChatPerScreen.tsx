@@ -44,7 +44,7 @@ export default function ChatPerScreen({navigation,route}: {navigation:any,route:
               />
             <TouchableOpacity
             style={styles.container}
-            onPress={() => navigation.navigate("ActivityScreen",{Lang: route.params.Lang, cUserId: route.params.cUserId, idCapsula: route.params.idCapsula})}
+            onPress={() => navigation.navigate("ActivityScreen",{idCapsula: route.params.idCapsula})}
           >
             <Text>Finalizar</Text>
           </TouchableOpacity>

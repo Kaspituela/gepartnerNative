@@ -1,15 +1,83 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, View, Button, Pressable } from 'react-native';
+import { StyleSheet, Text, TextInput, View, Button, Pressable, TouchableOpacity } from 'react-native';
 import { isSameUser } from 'react-native-gifted-chat/lib/utils';
+import Navigation from '../navigation';
 
-export default function ActivityScreen({route}: {route:any}) {
+export default function ActivityScreen({route, navigation}: {route:any, navigation:any}) {
     const [pos,setPos] = useState(0)
     const [text,setText] = useState("")
     const [inputText,setInputText] = useState("")
     const [answer,setAnswer] = useState("")
     const [elements,setElements] = useState([])
     const [order,setOrder] = useState([])
-    let sentenceList:any = []
+    const [Activity,setActivity] = useState([
+        {
+            id: 0,
+            sentence: "Hi, my name is Guillermo",
+            color: "#3e946f",
+            type: Math.random(),
+            answer: "",
+            isCorrect: -1,   // -1 es no respondida, 0 es error y 1 es correcto
+            list: obtainList("Hi, my name is Guillermo"),
+        },
+        {
+            id: 1,
+            sentence: "That was awesome my dude",
+            color: "#80ed99",
+            type: Math.random(),
+            answer: "",
+            isCorrect: -1,    
+            list: obtainList("That was awesome my dude"),
+        },
+        {
+            id: 2,
+            sentence: "Keep trying and get better",
+            color: "#80ed99",
+            type: Math.random(),
+            answer: "",
+            isCorrect: -1,
+            list: obtainList("Keep trying and get better"),
+        }, 
+        {
+            id: 3,
+            sentence: "This is a message by default, totally unexpected",
+            color: "#80ed99",
+            type: Math.random(),
+            answer: "",
+            isCorrect: -1,
+            list: obtainList("This is a message by default, totally unexpected"),
+        }
+    ])
+
+    const [sentenceList,setSentenceList]= useState(['Hi, my name is Guillermo','That was awesome, my dude', 'Keep trying and get better', 'This is a message by default, totally unexpected'])
+    
+    useEffect(() => {
+        let idCaps = route.params.idCapsula
+        console.log(idCaps)
+        fetch('https://gepartner-app.herokuapp.com/caps?data=baseAct&gid=' + idCaps)
+		.then(response => {return response.json();})
+		.then(data => {
+            let arrayActivity = data.data.baseAct === null ? sentenceList : data.baseAct;
+            let newActivity:any = []
+            for(let i = 0; i < arrayActivity.length; i++){
+                let num = Math.random()
+                let newList = num > 0.5 ? obtainList(arrayActivity[i]) : shuffle(obtainList(arrayActivity[i]))
+                let newSentence = {
+                    id: i,
+                    sentence: arrayActivity[i],
+                    color: i === 0 ? "#3e946f" : "#80ed99",
+                    type: num,
+                    answer: "",
+                    isCorrect: -1,
+                    list: newList,
+                }
+                newActivity.push(newSentence)
+            }
+            console.log(arrayActivity)
+            setActivity(newActivity)
+        });
+    },[sentenceList])
+
     function shuffle(array:any) {
         let currentIndex = array.length,  randomIndex;
       
@@ -64,45 +132,7 @@ export default function ActivityScreen({route}: {route:any}) {
         },
     ])
 
-    const [Activity,setActivity] = useState([
-        {
-            id: 0,
-            sentence: "Hi, my name is Guillermo",
-            color: "#3e946f",
-            type: Math.random(),
-            answer: "",
-            isCorrect: -1,
-            list: obtainList("Hi, my name is Guillermo"),
-        },
-        {
-            id: 1,
-            sentence: "That was awesome my dude",
-            color: "#80ed99",
-            type: Math.random(),
-            answer: "",
-            isCorrect: -1,    
-            list: obtainList("That was awesome my dude"),
-        },
-        {
-            id: 2,
-            sentence: "Keep trying and get better",
-            color: "#80ed99",
-            type: Math.random(),
-            answer: "",
-            isCorrect: -1,
-            list: obtainList("Keep trying and get better"),
-        }, 
-        {
-            id: 3,
-            sentence: "This is a message by default, totally unexpected",
-            color: "#80ed99",
-            type: Math.random(),
-            answer: "",
-            isCorrect: -1,
-            list: obtainList("This is a message by default, totally unexpected"),
-        }
-    ])
-
+    
     function changeColor(prev:any,num:any){ //'#80ed99' verde claro, '#3e946f'  verde oscuro
         let newActivity = Activity          //'#22577a' azul oscuro. '#47a2de' azul claro
         let prevColor = '#80ed99'
@@ -170,8 +200,8 @@ export default function ActivityScreen({route}: {route:any}) {
         return{
             flex: 2,
             backgroundColor: color,
-            paddingVertical: 15,
-            paddingHorizontal: 15,
+            paddingVertical: 10,
+            paddingHorizontal: 10,
             borderRadius: 10,
             borderColor: '#22577a',
             borderWidth: 2,
@@ -261,14 +291,34 @@ export default function ActivityScreen({route}: {route:any}) {
         changeAnswerbyButton(num)
     }
 
+    function buttonsStyle(num:any){
+        return{
+            backgroundColor: buttonSentence[num].color,
+            borderRadius: 5,
+            paddingHorizontal: 3,
+            paddingVertical: 3,
+            marginHorizontal: 2,
+            elevation: 2,
+        }
+    }
+
     function sortSentence(num: any){
         const format = <View style={styles.containerSort}>
             <Text style={styles.titleText}>Ordena las Palabras</Text>
             <Text style={styles.innerText}>La siguiente actividad consiste en ordenar las siguientes palabras para crear una oración.</Text>
             <View style={styles.containerButtons}> 
-                <Button color={buttonSentence[0].color} title={Activity[num].list[0]} onPress={() =>(selectButton(num,0))} disabled={flagButton(num)}/>
+                <TouchableOpacity style={buttonsStyle(0)} onPress={() =>(selectButton(num,0))} disabled={flagButton(num)}>
+                    <Text style={styles.innerSortButton}> {Activity[num].list[0]} </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={buttonsStyle(1)} onPress={() =>(selectButton(num,1))} disabled={flagButton(num)}>
+                    <Text style={styles.innerSortButton}> {Activity[num].list[1]} </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={buttonsStyle(2)} onPress={() =>(selectButton(num,2))} disabled={flagButton(num)}>
+                    <Text style={styles.innerSortButton}> {Activity[num].list[2]} </Text>
+                </TouchableOpacity>
+                {/* <Button color={buttonSentence[0].color} title={Activity[num].list[0]} onPress={() =>(selectButton(num,0))} disabled={flagButton(num)}/>
                 <Button color={buttonSentence[1].color} title={Activity[num].list[1]} onPress={() =>(selectButton(num,1))} disabled={flagButton(num)}/>
-                <Button color={buttonSentence[2].color} title={Activity[num].list[2]} onPress={() =>(selectButton(num,2))} disabled={flagButton(num)}/>
+                <Button color={buttonSentence[2].color} title={Activity[num].list[2]} onPress={() =>(selectButton(num,2))} disabled={flagButton(num)}/> */}
             </View>
         </View>
         return format
@@ -280,16 +330,31 @@ export default function ActivityScreen({route}: {route:any}) {
     }
 
     function EndProcess(){
-        alert("finalizado")
+        let auxActivity = Activity
+        let cant = 0
+        for(let i = 0; i < auxActivity.length; i++){
+            if(auxActivity[i].isCorrect === 1){
+                cant = cant + 1
+            }
+        }
+        let percentage = (cant / auxActivity.length) * 100
+        // Enviar porcentaje de logro, guardar exp y monedas
+        navigation.navigate("CapsulasScreen")
+        alert(percentage + "%")
     }
+
     return (
         <View style={styles.container}>
         <View style={styles.circles}>
             {Activity.map((element) => <View key={element.id} style={circleStyle(element)}></View>)}
         </View>
         <View style={styles.buttons}>
-            <Button color='#22577a' title="Prev" onPress={() =>(Prev())}/>
-            <Button color='#22577a' title="Next" onPress={() =>(Next())}/>
+            <TouchableOpacity style={styles.button} onPress={() =>(Prev())}>
+                <Text style={styles.innerButton}> Prev </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() =>(Next())}>
+                <Text style={styles.innerButton}> Next </Text>
+            </TouchableOpacity>
         </View>
         <View style={styles.activity}>
             {Activity[pos].type > 0.5 ? completeSentence(pos) : sortSentence(pos)}
@@ -303,8 +368,12 @@ export default function ActivityScreen({route}: {route:any}) {
             <Text style={styles.innerText}>{text}</Text>
         </View>   
         <View style={styles.endButtons}>
-            <Button color='#22577a' title="Responder" onPress={() =>(Finalize(pos))} disabled={flagButton(pos)}/>
-            <Button color='#22577a' title="Finalizar" onPress={() =>(EndProcess())}/>
+            <TouchableOpacity style={styles.button} onPress={() =>(Finalize(pos))} disabled={flagButton(pos)}>
+                <Text style={styles.innerButton}> Responder </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() =>(EndProcess())}>
+                <Text style={styles.innerButton}> Finalizar </Text>
+            </TouchableOpacity>
         </View>
         </View>
       );
@@ -315,35 +384,54 @@ const styles = StyleSheet.create({
         fontFamily: "Cochin"
     },
     innerText: {
-        fontSize: 20,
+        fontSize: 16,
+        fontWeight: "bold",
+        color: '#22577a',
+    },
+    innerButton:{
+        fontSize: 16,
+        fontWeight: "bold",
+        color: '#fff',
+    },
+    innerSortButton:{
+        fontSize: 16,
         fontWeight: "bold",
         color: '#22577a',
     },
     titleText: {
-        fontSize: 30,
+        fontSize: 20,
         fontWeight: "bold",
         color: '#22577a',
-        marginBottom: 20,
+        marginBottom: 5,
+    },
+    button: {
+        backgroundColor: '#22577a',
+        borderRadius: 5,
+        paddingHorizontal: 5,
+        paddingVertical: 5,
+        marginHorizontal: 2,
+        elevation: 2,
+        alignItems: 'center',
     },
     buttons:{
         flex: 1,
         flexDirection: 'row',
-        marginBottom: 50,
+        marginBottom: 10,
     },
     circles: {
         flex: 1,
         flexDirection: 'row',
-        marginTop: 10,
-        marginBottom: 10,
+        marginTop: 5,
     },
     activity:{
-        flex: 10,
+        flex: 5,
+        marginBottom: 5,
     },
     finalize:{
-        flex: 4,
+        flex: 2,
         backgroundColor: '#c7f9cc', //verde pastel
-        paddingVertical: 15,
-        paddingHorizontal: 15,
+        paddingVertical: 10,
+        paddingHorizontal: 10,
         borderRadius: 10,
         borderColor: '#22577a',
         borderWidth: 2,
@@ -356,6 +444,7 @@ const styles = StyleSheet.create({
         marginVertical: 10,
     },
     containerFinalize:{
+        position: 'absolute',
         backgroundColor: '#c7f9cc',
         alignItems: 'center',
     },
@@ -367,8 +456,8 @@ const styles = StyleSheet.create({
     containerSentence:{
         alignItems: 'center',
         backgroundColor: '#c7f9cc', //verde pastel
-        paddingVertical: 15,
-        paddingHorizontal: 15,
+        paddingVertical: 10,
+        paddingHorizontal: 10,
         borderRadius: 10,
         borderColor: '#22577a',
         borderWidth: 2,
@@ -377,14 +466,14 @@ const styles = StyleSheet.create({
     containerButtons:{
         flex: 1,
         flexDirection: 'row',
-        marginTop: 50,
-        marginBottom: 50,
+        marginTop: 10,
+        marginBottom: 5,
     },
     containerSort:{
         alignItems: 'center',
         backgroundColor: '#c7f9cc',
-        paddingVertical: 15,
-        paddingHorizontal: 15,
+        paddingVertical: 10,
+        paddingHorizontal: 10,
         borderRadius: 10,
         borderColor: '#22577a',
         borderWidth: 2,
@@ -393,8 +482,8 @@ const styles = StyleSheet.create({
     containerTextSentence:{
         flex: 1,
         flexDirection: 'row',
-        marginTop: 50,
-        marginBottom: 50,
+        marginTop: 16,
+        marginBottom: 5,
     },
     textInput:{
         backgroundColor: '#57cc99',
@@ -403,5 +492,8 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginRight: 10,
         marginLeft: 10,
+        fontSize: 16,
+        fontWeight: "bold",
+        height: 25,
     },
 });

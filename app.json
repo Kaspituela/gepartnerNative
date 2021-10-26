@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "gepartner",
+    "description": "App to learn a second language with AI.",
     "slug": "gepartner",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -26,6 +27,7 @@
     "android": {
       "package": "com.alkosoftworks.gepartner",
       "versionCode": 1,
+      "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
