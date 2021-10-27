@@ -334,8 +334,25 @@ export default function ActivityScreen({route, navigation}: {route:any, navigati
         }
         let percentage = (cant / auxActivity.length) * 100
         // Enviar porcentaje de logro, guardar exp y monedas
+        const requestOptions = { 
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              uid: parseInt(route.params.cUserId),
+              cid: route.params.idCapsula,
+              pct: percentage/100,
+            })
+        }
+        console.log(requestOptions)
+        fetch('http://gepartner-app.herokuapp.com/caps', requestOptions)
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+        console.log(data)
         navigation.navigate("CapsulasScreen")
         alert(percentage + "%")
+        });
     }
 
     return (

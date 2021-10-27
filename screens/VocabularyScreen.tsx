@@ -66,7 +66,7 @@ export default function VocabularyScreen({navigation,route}: {navigation:any, ro
                     <FlatList 
                         data={rows}
                         renderItem={renderItem}
-                        keyExtractor={(item:any) => item.id}
+                        keyExtractor={(item:any) => item.id.toString()}
                         extraData={isBusy}
                     />
                 </View>

@@ -8,11 +8,87 @@ import Navigation from '../navigation';
 
 export default function ChatPerScreen({navigation,route}: {navigation:any,route:any}) {
     const [messages, setMessages] = useState([])
+    const [isBusy, setBusy] = useState([])
+    const [old, setOld] = useState()
+    useEffect(()=>{
+      fetch('https://gepartner-app.herokuapp.com/caps?data=prompt&gid=' + route.params.idCapsula)
+      .then(response => {return response.json();})
+      .then(data => {
+          setMessages([])
+          let content = data.data.prompt.split("Teacher:")
+          let sentences = []
+          for(let i = 1; i < content.length; i++){
+            sentences.push(content[i])
+          }
+          addMessages(sentences)
+      });
+    },[old])
+
+    const addMessages = (newdata: any) =>{
+      let bot_id = 5 + route.params.cUserId
+      console.log(newdata)
+      let newMessages:any = []
+      for(let i = 0; i < newdata.length; i++){
+          let newMessage = {
+            _id: i,
+            text: newdata[i],
+            createdAt: new Date(),
+            user: {
+              _id: bot_id,
+              name: 'React Native',
+              avatar: require('../assets/users/robot-babbage.png'),
+            },
+          } as any
+          newMessages.push(newMessage)
+        }
+        console.log(newMessages)
+        setMessages(messages => GiftedChat.append(messages, newMessages))
+    }
 
     const onSend = useCallback((newMessage = []) => {
-        setMessages(messages => GiftedChat.append(messages, newMessage))    
+      // setMessages(messages => GiftedChat.append(messages, newMessage)) // añade los mensajes del usuario en el chat
+      console.log("NewMessage: ",newMessage) // mensaje enviado por usuario, enviar a la API
+      console.log("Inicio: ",messages) // mensaje enviado por usuario, enviar a la API
+      let usr_msj  = newMessage[0].text
+      setMessages(messages => GiftedChat.append(messages, newMessage))    
+      const requestOptions = { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            msg: usr_msj,
+            user_id: parseInt(route.params.cUserId),
+            lng: route.params.Lang,
+            cid: route.params.idCapsula,
+        })
+      }
+      console.log("request",requestOptions)
+      return fetch('http://gepartner-app.herokuapp.com/api/', requestOptions)
+      .then(response => {return response.json();})
+      .then(data => {
+      console.log("Inter: ",messages) // mensaje enviado por usuario, enviar a la API
+      console.log("data: ",data) // mensaje enviado por usuario, enviar a la API
+      let openai_response:any = {}
+      if (data.correction != ""){  // si existe una corrección, la ia responde con lo corregido
+        console.log("correction",data.correction)
+      } else if (data.correction == "" && data.msg != ""){
+          let bot_id = 5 + route.params.cUserId
+          let bid = data.bid === undefined ? Math.floor(Math.random() * 10000) + 1 : data.bid
+          openai_response = {
+            _id: bid,
+            text: data.msg,
+            createdAt: 0,
+            user: {
+              _id: bot_id,
+              name: 'React Native',
+              avatar: require('../assets/users/robot-babbage.png'),
+            },
+            tags: [],
+          } as any
+        }
+        setMessages(messages => GiftedChat.append(messages, openai_response))    
+        console.log("End: ",messages); // mensaje enviado por usuario, enviar a la API
+      });
     }, [])
-
     const renderBubble = (props:any) => {
         // console.log(props)
         return (
@@ -65,7 +141,7 @@ export default function ChatPerScreen({navigation,route}: {navigation:any,route:
             messages={messages}
             onSend={messages => onSend(messages)}
             user={{
-            _id: route.params.cuserId,
+            _id: route.params.cUserId,
             }}
             renderBubble={renderBubble}
             alwaysShowSend
