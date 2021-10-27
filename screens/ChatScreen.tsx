@@ -19,11 +19,14 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
   // Hooks para funcionamiento del Speech-To-Text
   const [recording, setRecording] = React.useState();
   const [text, setText] = React.useState("");
+  const [modalAudioVisibility, setModalAudioVisibility] = useState(false);
+  // ---------------------------------------------------------------------
 
   const [inputText,setinputText] = useState("")
   const [messageCorrection, setMessageCorrection] = useState('')
   const [messages, setMessages] = useState([])
   const [energyLocal, setEnergyLocal] = useState(0);
+
 
   const [modalVisibility, setModalVisibility] = useState(false);
   const [TTS_Text, setTTS_Text] = useState("");
@@ -150,8 +153,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
       });
   
     }
-  
-	
+
 	catch (error){
 		console.error(error);
 	}
@@ -202,7 +204,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
       </TouchableOpacity>
       <TouchableOpacity 
       style={styles.containerMic}
-      onPress={()=>{}}>
+      onPress={()=>{setModalAudioVisibility(!modalAudioVisibility)}}>
        <Ionicons
           name="mic"
           size={24}
@@ -364,7 +366,6 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
     setModalVisibility(!modalVisibility);
   }
 
-
   const scrollToBottomComponent = () => {
     return(
       <FontAwesome name='angle-double-down' size={22} color='#333' />
@@ -383,26 +384,26 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
     }
   };
 
-    // Funciones para el Speech-To-Text
-  
-    async function startRecording() {
-      try {
-        console.log('Requesting permissions..');
-        await Audio.requestPermissionsAsync();
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: true,
-          playsInSilentModeIOS: true,
-        }); 
-        console.log('Starting recording..');
-        const { recording } = await Audio.Recording.createAsync(
-           Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
-        );
-        setRecording(recording);
-        console.log('Recording started');
-      } catch (err) {
-        console.error('Failed to start recording', err);
-      }
+  // Funciones para el Speech-To-Text
+
+  async function startRecording() {
+    try {
+      console.log('Requesting permissions..');
+      await Audio.requestPermissionsAsync();
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      }); 
+      console.log('Starting recording..');
+      const { recording } = await Audio.Recording.createAsync(
+          Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
+      );
+      setRecording(recording);
+      console.log('Recording started');
+    } catch (err) {
+      console.error('Failed to start recording', err);
     }
+  }
   
 
   async function stopRecording() {
@@ -425,6 +426,11 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
     console.log(recording);
   }
 
+  const CloseSTT = () => {
+    setModalAudioVisibility(!modalAudioVisibility);
+  }
+
+
 
 
   return (
@@ -438,7 +444,6 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
         <Icon style={{marginRight: 30, marginTop: 18}} onPress={() => { handlerPress() }} name="ellipsis-v" size={30} />
       </View>
 
-      
       {/* Modal utiliza la pantalla entera, por lo que se divide en varias vistas, donde la parte externa es transparente */}
       <Modal
         transparent={true}
@@ -465,7 +470,6 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
             { /* Slider de velocidad de lectura TTS*/}
             <View style={styles.SliderContainter}>
               <View style={styles.row}>
-
                 <Text>Velocidad: x{ TTS_Rate }</Text>
                 <Slider style={styles.Slider}
                   value={TTS_Rate}
@@ -475,11 +479,40 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
                   step={0.25}
                 />
               </View>
-              
             </View>
           </View>
         </View>
+      </Modal>  
+  
+
+       {/* Modal del Speech To Text la pantalla entera, por lo que se divide en varias vistas, donde la parte externa es transparente */}
+       <Modal
+        transparent={true}
+        animationType={"slide"}
+        visible={modalAudioVisibility}
+        onRequestClose={() => { setModalVisibility(!modalAudioVisibility) }} >
+        {/* Diseño del tamaño completo de la pantalla */}
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          { /* Vista del cuadro interno del Modal */}
+          <View style={styles.MenuTTS}>
+            
+            <IconButton style={{position:'absolute', right:10}} icon="close" onPress={() => { CloseSTT() }} />
+          
+            {/* <ScrollView style={styles.TextStyle}> 
+              <Text style={{fontSize: 18, paddingBottom:5, paddingTop:5, textAlign: 'center',}}> "{TTS_Text}" </Text>
+            </ScrollView> */}
+
+            {/* Rows para colocar botones. */ }
+            <View style={[styles.row, styles.rowTTS]}>
+              <Button
+                title={recording ? "Stop Recording" : "Start Recording"}
+                onPress={recording ? stopRecording : startRecording}
+              />
+            </View>           
+          </View>
+        </View>
       </Modal>
+
             
       <GiftedChat
         messages={messages}
