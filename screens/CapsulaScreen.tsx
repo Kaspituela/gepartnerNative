@@ -311,6 +311,7 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
     const openCapsule = (item: any) => {
         toggleFavorite(item);
         navigation.navigate('VocabularyScreen',{ idCapsula: item.id})
+        setCapsuleModal(false);
         console.log(item);
     }
 

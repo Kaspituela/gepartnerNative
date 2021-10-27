@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, View, Button, Pressable, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TextInput, View, Button, Pressable, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { isSameUser } from 'react-native-gifted-chat/lib/utils';
 import Navigation from '../navigation';
 
@@ -11,54 +11,25 @@ export default function ActivityScreen({route, navigation}: {route:any, navigati
     const [elements,setElements] = useState([])
     const [order,setOrder] = useState([])
     const [Activity,setActivity] = useState([
-        {
-            id: 0,
-            sentence: "Hi, my name is Guillermo",
-            color: "#3e946f",
-            type: Math.random(),
-            answer: "",
-            isCorrect: -1,   // -1 es no respondida, 0 es error y 1 es correcto
-            list: obtainList("Hi, my name is Guillermo"),
-        },
-        {
-            id: 1,
-            sentence: "That was awesome my dude",
-            color: "#80ed99",
-            type: Math.random(),
-            answer: "",
-            isCorrect: -1,    
-            list: obtainList("That was awesome my dude"),
-        },
-        {
-            id: 2,
-            sentence: "Keep trying and get better",
-            color: "#80ed99",
-            type: Math.random(),
-            answer: "",
-            isCorrect: -1,
-            list: obtainList("Keep trying and get better"),
-        }, 
-        {
-            id: 3,
-            sentence: "This is a message by default, totally unexpected",
-            color: "#80ed99",
-            type: Math.random(),
-            answer: "",
-            isCorrect: -1,
-            list: obtainList("This is a message by default, totally unexpected"),
-        }
-    ])
-
-    const [sentenceList,setSentenceList]= useState(['Hi, my name is Guillermo','That was awesome, my dude', 'Keep trying and get better', 'This is a message by default, totally unexpected'])
+        {id: 0,
+        sentence: "",
+        color: "#80ed99",
+        type: Math.random(),
+        answer: "",
+        isCorrect: -1,
+        list: [],
+        }])
+    const [isBusy, setBusy] = useState(true)
+    const [sentenceList,setSentenceList]= useState(['Hi, my name is Guillermo','That was awesome, dude', 'Keep trying my boy', 'This is a message by default, totally unexpected'])
     
     useEffect(() => {
         let idCaps = route.params.idCapsula
         console.log(idCaps)
+        let newActivity:any = []
         fetch('https://gepartner-app.herokuapp.com/caps?data=baseAct&gid=' + idCaps)
 		.then(response => {return response.json();})
 		.then(data => {
-            let arrayActivity = data.data.baseAct === null ? sentenceList : data.baseAct;
-            let newActivity:any = []
+            let arrayActivity = data.data.baseAct === null ? sentenceList : data.data.baseAct;
             for(let i = 0; i < arrayActivity.length; i++){
                 let num = Math.random()
                 let newList = num > 0.5 ? obtainList(arrayActivity[i]) : shuffle(obtainList(arrayActivity[i]))
@@ -73,9 +44,36 @@ export default function ActivityScreen({route, navigation}: {route:any, navigati
                 }
                 newActivity.push(newSentence)
             }
-            console.log(arrayActivity)
-            setActivity(newActivity)
+            fetch('https://gepartner-app.herokuapp.com/user?data=savedActs&uid=' + route.params.cUserId)
+            .then(response => {return response.json();})
+            .then(data => {
+                let objectActivity = data.user.savedActs === null ? [] : JSON.parse(data.user.savedActs);
+                console.log("objectActivity",objectActivity)    
+                let arrayActivity = objectActivity[idCaps] === undefined ? [] : objectActivity[idCaps]
+                console.log("arrayActivity",arrayActivity)
+                let j = 0
+                for(let i = newActivity.length; j < arrayActivity.length; i++){
+                    let num = Math.random()
+                    let newList = num > 0.5 ? obtainList(arrayActivity[j]) : shuffle(obtainList(arrayActivity[j]))
+                    let newSentence = {
+                        id: i,
+                        sentence: arrayActivity[j],
+                        color: "#80ed99",
+                        type: num,
+                        answer: "",
+                        isCorrect: -1,
+                        list: newList,
+                    }
+                    newActivity.push(newSentence)
+                    j = j + 1
+                }
+                setActivity(newActivity)
+                console.log("newActivity",newActivity)
+                console.log("Actividad",Activity)
+                setBusy(false)
+            });
         });
+
     },[sentenceList])
 
     function shuffle(array:any) {
@@ -234,7 +232,7 @@ export default function ActivityScreen({route, navigation}: {route:any, navigati
     }
 
     function changeAnswer(text:string, num:any){
-        let currAnswer = Activity[num].list[0] + " " + text + " "+ Activity[num].list[2]
+        let currAnswer = Activity[num].list[2] === undefined ? Activity[num].list[0] + " " + text  : Activity[num].list[0] + " " + text + " "+ Activity[num].list[2]
         setInputText(text)
         setAnswer(currAnswer)
     }
@@ -246,7 +244,7 @@ export default function ActivityScreen({route, navigation}: {route:any, navigati
             <View style={styles.containerTextSentence}>
                 <Text style={styles.innerText}>{Activity[num].list[0]}</Text>
                 <TextInput onChangeText={text => changeAnswer(text,num)} value={inputText} editable={!flagButton(num)} style={styles.textInput}></TextInput>
-                <Text style={styles.innerText}>{Activity[num].list[2]}</Text>
+                {Activity[num].list[2] !== undefined && <Text style={styles.innerText}>{Activity[num].list[2]}</Text> }
             </View>
         </View>
         return format
@@ -295,7 +293,6 @@ export default function ActivityScreen({route, navigation}: {route:any, navigati
         return{
             backgroundColor: buttonSentence[num].color,
             borderRadius: 5,
-            paddingHorizontal: 3,
             paddingVertical: 3,
             marginHorizontal: 2,
             elevation: 2,
@@ -313,12 +310,10 @@ export default function ActivityScreen({route, navigation}: {route:any, navigati
                 <TouchableOpacity style={buttonsStyle(1)} onPress={() =>(selectButton(num,1))} disabled={flagButton(num)}>
                     <Text style={styles.innerSortButton}> {Activity[num].list[1]} </Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={buttonsStyle(2)} onPress={() =>(selectButton(num,2))} disabled={flagButton(num)}>
+                {Activity[num].list[2] !== undefined && <TouchableOpacity style={buttonsStyle(2)} onPress={() =>(selectButton(num,2))} disabled={flagButton(num)}>
                     <Text style={styles.innerSortButton}> {Activity[num].list[2]} </Text>
                 </TouchableOpacity>
-                {/* <Button color={buttonSentence[0].color} title={Activity[num].list[0]} onPress={() =>(selectButton(num,0))} disabled={flagButton(num)}/>
-                <Button color={buttonSentence[1].color} title={Activity[num].list[1]} onPress={() =>(selectButton(num,1))} disabled={flagButton(num)}/>
-                <Button color={buttonSentence[2].color} title={Activity[num].list[2]} onPress={() =>(selectButton(num,2))} disabled={flagButton(num)}/> */}
+                }
             </View>
         </View>
         return format
@@ -345,36 +340,40 @@ export default function ActivityScreen({route, navigation}: {route:any, navigati
 
     return (
         <View style={styles.container}>
-        <View style={styles.circles}>
-            {Activity.map((element) => <View key={element.id} style={circleStyle(element)}></View>)}
-        </View>
-        <View style={styles.buttons}>
-            <TouchableOpacity style={styles.button} onPress={() =>(Prev())}>
-                <Text style={styles.innerButton}> Prev </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() =>(Next())}>
-                <Text style={styles.innerButton}> Next </Text>
-            </TouchableOpacity>
-        </View>
-        <View style={styles.activity}>
-            {Activity[pos].type > 0.5 ? completeSentence(pos) : sortSentence(pos)}
-        </View>
-        <View style={answerStyle(pos)}>
-            <Text style={styles.innerText}>Respuesta: </Text>
-            <Text style={styles.innerText}>{answer}</Text>
-        </View>     
-        <View style={styles.finalize}>
-            <Text style={styles.titleText}>Resultado</Text>
-            <Text style={styles.innerText}>{text}</Text>
-        </View>   
-        <View style={styles.endButtons}>
-            <TouchableOpacity style={styles.button} onPress={() =>(Finalize(pos))} disabled={flagButton(pos)}>
-                <Text style={styles.innerButton}> Responder </Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() =>(EndProcess())}>
-                <Text style={styles.innerButton}> Finalizar </Text>
-            </TouchableOpacity>
-        </View>
+            { isBusy ? <ActivityIndicator size="large" color="#00ff00"/> : 
+                <View style={styles.subContainer}>
+                    <View style={styles.circles}>
+                        {Activity && Activity.map((element) => <View key={element.id} style={circleStyle(element)}></View>)}
+                    </View>
+                    <View style={styles.buttons}>
+                        <TouchableOpacity style={styles.button} onPress={() =>(Prev())}>
+                            <Text style={styles.innerButton}> Prev </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button} onPress={() =>(Next())}>
+                            <Text style={styles.innerButton}> Next </Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.activity}>
+                        {Activity && Activity[pos].type > 0.5 ? completeSentence(pos) : sortSentence(pos)}
+                    </View>
+                    <View style={answerStyle(pos)}>
+                        <Text style={styles.innerText}>Respuesta: </Text>
+                        <Text style={styles.innerText}>{answer}</Text>
+                    </View>     
+                    <View style={styles.finalize}>
+                        <Text style={styles.titleText}>Resultado</Text>
+                        <Text style={styles.innerText}>{text}</Text>
+                    </View>   
+                    <View style={styles.endButtons}>
+                        <TouchableOpacity style={styles.button} onPress={() =>(Finalize(pos))} disabled={flagButton(pos)}>
+                            <Text style={styles.innerButton}> Responder </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.button} onPress={() =>(EndProcess())}>
+                            <Text style={styles.innerButton}> Finalizar </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            }
         </View>
       );
 }
@@ -384,17 +383,18 @@ const styles = StyleSheet.create({
         fontFamily: "Cochin"
     },
     innerText: {
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: "bold",
         color: '#22577a',
+        textAlign: 'justify',
     },
     innerButton:{
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: "bold",
         color: '#fff',
     },
     innerSortButton:{
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: "bold",
         color: '#22577a',
     },
@@ -451,7 +451,14 @@ const styles = StyleSheet.create({
     container:{
         flex: 1,
         alignItems: 'center',
+        justifyContent: 'center',
         flexDirection: 'column',
+    },
+    subContainer:{
+        flex: 1,
+        alignItems: 'center',
+        flexDirection: 'column',
+        padding:5,
     },
     containerSentence:{
         alignItems: 'center',
@@ -464,7 +471,6 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
     },
     containerButtons:{
-        flex: 1,
         flexDirection: 'row',
         marginTop: 10,
         marginBottom: 5,
@@ -482,7 +488,7 @@ const styles = StyleSheet.create({
     containerTextSentence:{
         flex: 1,
         flexDirection: 'row',
-        marginTop: 16,
+        marginTop: 15,
         marginBottom: 5,
     },
     textInput:{
