@@ -8,11 +8,18 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
 import { Colors, IconButton, ProgressBar } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { Audio } from 'expo-av';
+import * as FileSystem from "expo-file-system";
 
+const FLASK_BACKEND_AUDIO = "http://gepartner-app.herokuapp.com/audio/";
 
 export default function ChatScreen({navigation, route}: {navigation: any, route: any}) {
   let uid = route.params.cUserId;
   
+  // Hooks para funcionamiento del Speech-To-Text
+  const [recording, setRecording] = React.useState();
+  const [text, setText] = React.useState("");
+
   const [inputText,setinputText] = useState("")
   const [messageCorrection, setMessageCorrection] = useState('')
   const [messages, setMessages] = useState([])
@@ -176,27 +183,36 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
   //   })
   // }, [navigation])
 
+
   const renderSend = (props:any) => {
     return (
       <Send {...props}>
-        <View>
+        <View style={{ flexDirection:"row" }}> 
           <Ionicons
             name="paper-plane-outline"
-            style={{marginBottom: 10, marginRight: 90}}
+            style={{marginBottom: 10, marginRight: 60}}
             size={24}
             color="#616161"
           />
         <TouchableOpacity
-        style={styles.container}
+        style={styles.containerTranslate}
         onPress={() => translateFunction(props.text)}
       >
         <Text>Traducir</Text>
+      </TouchableOpacity>
+      <TouchableOpacity 
+      style={styles.containerMic}
+      onPress={()=>{}}>
+       <Ionicons
+          name="mic"
+          size={24}
+          color="#616161"
+       />
       </TouchableOpacity>
         </View>
       </Send>
     );
   };
-
   const corregirMessage = (currentMessage:any) => {
     console.log(currentMessage)
     setinputText(currentMessage.text)
@@ -367,6 +383,49 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
     }
   };
 
+    // Funciones para el Speech-To-Text
+  
+    async function startRecording() {
+      try {
+        console.log('Requesting permissions..');
+        await Audio.requestPermissionsAsync();
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: true,
+          playsInSilentModeIOS: true,
+        }); 
+        console.log('Starting recording..');
+        const { recording } = await Audio.Recording.createAsync(
+           Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
+        );
+        setRecording(recording);
+        console.log('Recording started');
+      } catch (err) {
+        console.error('Failed to start recording', err);
+      }
+    }
+  
+
+  async function stopRecording() {
+    console.log('Stopping recording..');
+    setRecording(undefined);
+    await recording.stopAndUnloadAsync();
+    const uri = recording.getURI(); 
+    console.log('Recording stopped and stored at', uri);
+    try {
+      const response = await FileSystem.uploadAsync(
+        FLASK_BACKEND_AUDIO,
+        uri
+      );
+      const body = JSON.parse(response.body);
+      console.log(body);
+      setText(body.text);
+    } catch (err) {
+      console.error(err);
+    } 
+    console.log(recording);
+  }
+
+
 
   return (
     <View style={{ flex: 1 }}>
@@ -530,6 +589,23 @@ const styles = StyleSheet.create({
     width: 70,
     flex: 1,  
     backgroundColor: "#DDDDDD",
+    alignItems: 'center'
+  },
+  containerTranslate: {
+    position: 'absolute',
+    right: 45,
+    height: 20,
+    width: 70,
+    flex: 1,  
+    backgroundColor: "#DDDDDD",
+    alignItems: 'center'
+  },
+  containerMic: {
+    position: 'relative',
+    right: -10,
+    height: 20,
+    width: 70,
+    flex: 1,  
     alignItems: 'center'
   }
 
