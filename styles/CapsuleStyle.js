@@ -1,5 +1,9 @@
 import styled from 'styled-components/native';
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+// Seccion inicial que muestra los 3 niveles de dificultad de las capsulas. 
+///////////////////////////////////////////////////
+
 export const Container = styled.View`
   flex: 1;
   padding-top: 10px;
@@ -13,7 +17,7 @@ export const Container = styled.View`
 
 export const Card = styled.TouchableOpacity`
   position: relative;
-  width: 800px;
+  width: 150px;
   padding-top: 30px;
   padding-bottom: 30px;
 `;
@@ -30,13 +34,11 @@ export const LevelInfo = styled.View`
   justify-content: center;
 `;
 
-
 export const LevelImg = styled.Image`
   position: absolute;
   width: 130px;
   height: 130px;
 `;
-
 
 export const LevelName = styled.Text`
   position: absolute;
@@ -46,7 +48,9 @@ export const LevelName = styled.Text`
 `;
 
 
-//  Seccion de capsulas dentro del Modal
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// 
+//  Flatlist de capsulas dentro del Modal de Capsulas
+///////////////////////////////////////////////////
 
 export const CapCard = styled.TouchableOpacity`
   position: relative;
@@ -56,6 +60,7 @@ export const CapCard = styled.TouchableOpacity`
 export const CapImgWrapper = styled.View`
   padding-top: 15px;
   padding-bottom: 15px;
+  padding-left: 35px;
   `;
 
 export const CapImg = styled.Image`
@@ -75,6 +80,7 @@ export const CapName = styled.Text`
 export const CapContainer = styled.View`
   flex-direction: row;
   justify-content: space-between;
+  top:-8px;
 `;
 
 export const CapText = styled.View`
@@ -84,58 +90,3 @@ export const CapText = styled.View`
   margin-left: 0px;
   width: 70%;
 `;
-
-/*
-
-
-export const Card = styled.TouchableOpacity`
-  width: 100%;
-  height: 150px;
-`;
-
-export const LevelInfo = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-`;
-
-export const LevelWrapper = styled.View`
-  padding-top: 15px;
-  padding-bottom: 15px;
-  padding-left: 25px;
-  `;
-
-export const LevelImg = styled.Image`
-    position: relative;
-    width: 80px;
-    height: 80px;
-`;
-
-export const TextSection = styled.View`
-  position: relative;
-  flex-direction: column;
-  justify-content: center;
-  padding: 15px;
-  padding-left: 0;
-  top: -120px;
-  margin-left: 110px;
-  width: 300px;
-  border-bottom-width: 1px;
-  border-bottom-color: #cccccc;
-`;
-
-export const LevelText = styled.View`
-  flex-direction: row;
-  justify-content: space-between;
-  margin-bottom: -10px;
-  align-items: center;
-`;
-
-export const LevelName = styled.Text`
-  font-size: 25px;
-  font-weight: bold;
-  bottom: 20px;
-`;
-
-
-
-*/

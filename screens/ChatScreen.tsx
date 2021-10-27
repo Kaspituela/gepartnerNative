@@ -1,5 +1,7 @@
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
+import { Audio } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
 import * as Speech from 'expo-speech';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Component } from 'react';
@@ -8,8 +10,6 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
 import { Colors, IconButton, ProgressBar } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { Audio } from 'expo-av';
-import * as FileSystem from "expo-file-system";
 
 const FLASK_BACKEND_AUDIO = "http://gepartner-app.herokuapp.com/audio/";
 
@@ -494,7 +494,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
         {/* Diseño del tamaño completo de la pantalla */}
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           { /* Vista del cuadro interno del Modal */}
-          <View style={styles.MenuTTS}>
+          <View style={[styles.MenuTTS, {height: 120}]}>
             
             <IconButton style={{position:'absolute', right:10}} icon="close" onPress={() => { CloseSTT() }} />
           
@@ -502,13 +502,15 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
               <Text style={{fontSize: 18, paddingBottom:5, paddingTop:5, textAlign: 'center',}}> "{TTS_Text}" </Text>
             </ScrollView> */}
 
-            {/* Rows para colocar botones. */ }
-            <View style={[styles.row, styles.rowTTS]}>
-              <Button
-                title={recording ? "Stop Recording" : "Start Recording"}
-                onPress={recording ? stopRecording : startRecording}
-              />
-            </View>           
+            {/* Rows para colocar botones. */}
+            <View style={{ position:'relative', maxWidth: '80%', top: 40}}>
+                <View>
+                  <Button
+                    title={recording ? "Stop Recording" : "Start Recording"}
+                    onPress={recording ? stopRecording : startRecording}
+                  />
+                </View> 
+              </View>  
           </View>
         </View>
       </Modal>
@@ -627,6 +629,7 @@ const styles = StyleSheet.create({
   containerTranslate: {
     position: 'absolute',
     right: 45,
+    top: -25,
     height: 20,
     width: 70,
     flex: 1,  
@@ -634,7 +637,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   containerMic: {
-    position: 'relative',
+    position: 'absolute',
     right: -10,
     height: 20,
     width: 70,
