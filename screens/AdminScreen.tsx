@@ -245,6 +245,7 @@ export default function AdminScreen ({navigation, route}: {navigation: any, rout
     }
     
     const handlerPressEdit = (item:any) => {
+        console.log("error",item)
         setObjeto(item)
         onChangeName(item.name)
         onChangeDesc(item.desc)
@@ -253,7 +254,7 @@ export default function AdminScreen ({navigation, route}: {navigation: any, rout
         onChangeMembership(item.premium.toString())
         onChangeVocab(item.vocab)
         onChangePrompt(item.prompt)
-        onChangeBaseAct(item.baseAct)
+        onChangeBaseAct(item.baseAct.join(","))
         onChangeContTitle(item.content)
         setEditCap(true)
     }
@@ -328,7 +329,7 @@ export default function AdminScreen ({navigation, route}: {navigation: any, rout
             body: JSON.stringify({
               cid: objeto.id,
               data: 'baseAct',
-              value: baseAct
+              value: baseAct.split(',')
             })
         }
         const requestContent = { 

@@ -1,17 +1,80 @@
-import React, { useState } from 'react'
+import React, { useState,useCallback, useEffect, useRef } from 'react'
 import { FlatList, StyleSheet, Text, View, Pressable, Modal} from 'react-native'
 import { Card, Container, FlagImg, FlagImgWrapper, FlagInfo, FlagText, Language, TextSection } from '../styles/FlagStyle'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { Subscription } from '@unimodules/core';
+import * as Notifications from 'expo-notifications';
 
 export default function LanguageScreen({navigation, route}: {navigation: any, route: any}) {
+  //notificaciones...
+  var token = ""
+  const [old,setOld] = useState()
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: false,
+      shouldSetBadge: false
+    })
+  });
+  
+  const getPushToken = () => {  
+      try {
+          return Notifications.getPermissionsAsync()
+              .then((statusResult:any) => {
+                  return statusResult.status !== 'granted'
+                      ? Notifications.requestPermissionsAsync()
+                      : statusResult;
+              })
+              .then((statusResult:any) => {
+                if (statusResult.status !== 'granted') {
+                      throw 'Failed to get push token for push notification!';
+                  }
+                  return Notifications.getExpoPushTokenAsync();
+              })
+              .then((tokenData:any) => tokenData.data);
+      } catch (error) {
+          return Promise.reject("Couldn't check notifications permissions");
+      }
+  };
+
+  const [expoPushToken, setExpoPushToken] = useState<string>();
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [notification, setNotification] = useState<Notifications.Notification>();
+  const notificationListener = useRef<Subscription>();
+  const responseListener = useRef<Subscription>();
+
+  useEffect(() => {
+      getPushToken().then((pushToken) => {
+          setExpoPushToken(pushToken);
+          token = pushToken.split("[")[1].split("]")[0];
+          console.log(token);
+      });
+
+      notificationListener.current =
+          Notifications.addNotificationReceivedListener(setNotification);
+
+      responseListener.current = Notifications.addNotificationResponseReceivedListener(
+          (response) => {
+              setNotification(response.notification);
+          }
+      );
+
+      return () => {
+          notificationListener.current &&
+              Notifications.removeNotificationSubscription(notificationListener.current);
+          responseListener.current &&
+              Notifications.removeNotificationSubscription(responseListener.current);
+      };
+  }, [old]);
+
+  //languages cosas...
   let uid = route.params.userId
   console.log(uid)
   const [nameUser, setNameUser] = useState('')
   const [modalVisible, setModalVisible] = useState(false)
   const [membership, setMembership] = useState(false)
   const [premium, setPremium] = useState('')
-  
   const requestInfoUser = { 
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
@@ -127,7 +190,9 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
   }
 
   const handlerPressConfig = () => {
-    return navigation.navigate('Configuration')
+    setModalVisible(!modalVisible)
+    console.log("tokenn",token)
+    return navigation.navigate('Configuration',{ctoken: expoPushToken.split("[")[1].split("]")[0]})
   }
 
   const handlerPress = () => {

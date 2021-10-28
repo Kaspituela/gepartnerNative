@@ -1,8 +1,12 @@
 import { StackScreenProps } from '@react-navigation/stack';
 import * as React from 'react';
-import {useState} from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Switch, Modal, SafeAreaView, Pressable} from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Switch, Modal, SafeAreaView, TextInput} from 'react-native';
 import { FlatList} from 'react-native';
+import Constants from 'expo-constants';
+
+import { Subscription } from '@unimodules/core';
+import * as Notifications from 'expo-notifications';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import Icon from 'react-native-vector-icons/FontAwesome'
 
@@ -23,81 +27,82 @@ const DATA = [
       title: 'Third Item',
     },
   ];
-  
-export default function ConfigurationScreen({navigation,}: StackScreenProps<ConfigurationParamList, 'ConfigurationScreen'>) {
+export default function ConfigurationScreen({navigation,route}: {navigation:any,route:any}) {
+    const [text, setText] = useState('');
 
-
-    return (
-        <View style={styles.Container}>
-            <View>
-                <Pressable style={styles.PressAdd} onPress={() => {setNotification(true)}}>
-                    <Text style={{color:'#c7f9cc', fontSize: 20}}>Notificaciones</Text>
-                </Pressable>
-                <Pressable style={styles.PressEdit} onPress={() => {setNotifFrecuency(true)}}>
-                    <Text style={{color:'#c7f9cc', fontSize: 20}}>Frecuencia de notificaciones</Text>
-                </Pressable>
-                <Pressable style={styles.PressDes} onPress={() => {setNotifEnergia(true)}}>
-                    <Text style={{color:'#c7f9cc', fontSize: 20}}>Notificación por recarga</Text>
-                </Pressable>
+    function sendNotification(){
+        const requestEnergy = { 
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+        }
+        fetch('https://gepartner-app.herokuapp.com/notif?token=' + route.params.ctoken +"&time="+ text +"&uid=" + route.params.cUid  )
+    }
+    return(
+        <View style={styles.container}>
+            <Text style={styles.titleText}>Configurar Notificacion</Text>
+            <Text style={styles.innerText}>Tiempo</Text>
+            <View style={styles.subContainer}>
+                <TextInput
+                style={styles.textInput}
+                placeholder="Escriba la cantidad de tiempo"
+                onChangeText={text => setText(text)}
+                defaultValue={text}
+                />
+                <Text styles={styles.innerText}>Dias</Text>
             </View>
+                <TouchableOpacity style={styles.button} onPress={() =>(sendNotification())}>
+                    <Text style={styles.innerButton}> Configurar </Text>
+                </TouchableOpacity>
         </View>
     )
-
 }
 
 const styles = StyleSheet.create({
-    Container: {
+    container: {
         flex: 1,
         backgroundColor: '#fff'
     },
-    Title: {
+    titleText: {
         color: '#22577a',
         textAlign: 'center',
-        fontSize: 50,
+        fontSize: 20,
         marginBottom: 50,
         marginTop: 20
     },
-    PressAdd: {
+    innerText:{
+        fontSize: 15,
+    },
+    subContainer:{
+        flexDirection:'row',
+        padding: 10,
+    },
+    textInput:{
+        marginHorizontal: 10,
+    },
+    innerButton:{
+        fontSize: 15,
+        fontWeight: "bold",
+        color: '#fff',
+    },
+    button: {
+        backgroundColor: '#22577a',
+        borderRadius: 5,
+        paddingHorizontal: 5,
+        paddingVertical: 5,
+        marginHorizontal: 2,
+        elevation: 2,
         alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#22577a', 
-        paddingVertical: 30, 
-        marginTop: 150
     },
-    PressEdit: {
+    subContainer:{
         alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#22577a', 
-        paddingVertical: 30,
-        marginVertical: 30
-    },
-    PressDes: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#22577a', 
-        paddingVertical: 30
-    },
-    Card: {
-        flexDirection: 'row',
-        margin: 5,
-        width: '100%'
-    },
-    Exit2: {
-        alignSelf: 'flex-start'
-    },
-    link: {
-        marginTop: 15,
-        paddingVertical: 15,
-    },
-    linkText: {
-        fontSize: 14,
-        color: '#2e78b7',
-    },
-    item: {
-        backgroundColor: '#fff',
-        paddingHorizontal: 130,
+        backgroundColor: '#c7f9cc', //verde pastel
         paddingVertical: 10,
-        marginVertical: 8,
-        marginHorizontal: 1,
+        paddingHorizontal: 10,
+        borderRadius: 10,
+        borderColor: '#22577a',
+        borderWidth: 2,
+        marginHorizontal: 5,
+        flexDirection: 'row',
+        marginBottom: 10,
     },
 });

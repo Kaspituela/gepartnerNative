@@ -9,6 +9,7 @@ export type RootStackParamList = {
   Admin: undefined;
   Language: undefined;
   NotFound: undefined;
+  Configuration: undefined;
 };
 
 export type BottomTabParamList = {
