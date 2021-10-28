@@ -230,6 +230,15 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
             // Recarga el progreso de las capsulas al volver recargar la pagina desde una 
             if (hasLoaded) {
 
+                // Actualiza las capsulas realizadas por el dia para los estudiantes gratuitos.
+                if (!membership) {
+                    fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=daily_done')
+                        .then(response => { return response.json(); })
+                        .then(daily => {
+                            setDailyDone(daily.user.daily_done);
+                        })
+                }
+
                 fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=completed')
                     .then(response => { return response.json(); })
                     .then(completionInfo => {
@@ -440,20 +449,15 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
     const openCapsule = () => {
         // Revision para verificar que el usuario gratis solo puede completar 2 capsulas por dia
         if (!membership) {
-            fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=daily_done')
-            .then(response => { return response.json(); })
-            .then(daily => {
-                setDailyDone(daily.user.daily_done);
-                if (daily.user.daily_done < capsuleLimit) {
-                    // Envia al usuario a la capsula seleccionada
-                    navigation.navigate('VocabularyScreen', { idCapsula: selectedCapsule.id });
-                    setCapsuleModal(false);
-                    setActivityModal(false);
-                } else {
-                    setAlertMessage("Ya has llegado al límite de capsulas diarias");
-                    setAlertModal(true);
-                }
-            });      
+            if (dailyDone < capsuleLimit) {
+                // Envia al usuario a la capsula seleccionada
+                navigation.navigate('VocabularyScreen', { idCapsula: selectedCapsule.id });
+                setCapsuleModal(false);
+                setActivityModal(false);
+            } else {
+                setAlertMessage("Ya has llegado al límite de capsulas diarias");
+                setAlertModal(true);
+            }      
         }else { // Si el usuario es premium, se le premite ingresar de forma inmediata.
             navigation.navigate('VocabularyScreen', { idCapsula: selectedCapsule.id });
             setCapsuleModal(false);
