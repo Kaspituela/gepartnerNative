@@ -211,9 +211,9 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
                     if (progressItems.length != 0) {
 
                         // Se separa cada elemento
-                        progressItems = progressItems.split(',')
+                        progressItems = progressItems.split(', ')
                         var progressList: any[] = [];
-
+                        
                         progressItems.forEach((element: any) => {
                             element = element.split(":");
 
