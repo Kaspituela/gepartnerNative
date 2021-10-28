@@ -24,7 +24,8 @@ import {
 export default function LanguageScreen({navigation, route}: {navigation: any, route: any}) {
 
     // obtener nivel de idioma del usuario desde BD!!!
-    var nivelIdioma = 2;
+
+    const [nivelIdioma, setNivelIdioma] = useState(0);
 
     // Definicion de número de capsulas que el usuario gratis puede completar en un solo dia. Por defecto 2.
     var capsuleLimit = 2;
@@ -108,6 +109,13 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
                     setDailyDone(daily.user.daily_done);
                 })
         }
+
+        fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=level')
+            .then(response => { return response.json(); })
+            .then(data => {
+                setNivelIdioma(data.user.level);
+            });
+
 
         fetch('http://gepartner-app.herokuapp.com/caps?lang=' + lang)
         .then(response => { return response.json(); })

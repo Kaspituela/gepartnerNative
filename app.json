@@ -36,14 +36,5 @@
     "web": {
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [
-      [
-        "@react-native-voice/voice",
-        {
-          "microphonePermission": "Allow gepartner to access your microphone",
-          "speechRecognitionPermission": "Allow gepartner to securely recognize user speech"
-        }
-      ]
-    ]
   }
 } 

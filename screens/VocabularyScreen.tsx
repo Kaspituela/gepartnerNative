@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Button, ActivityIndicator, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Button, ActivityIndicator, FlatList, TouchableOpacity, Modal, ScrollView } from 'react-native';
+import { IconButton } from 'react-native-paper';
 
 export default function VocabularyScreen({navigation,route}: {navigation:any, route:any}) {
     const [isBusy, setBusy] = useState(true)
@@ -7,10 +8,12 @@ export default function VocabularyScreen({navigation,route}: {navigation:any, ro
     const [title, setTitle] = useState("")
     const [desc, setDesc] = useState("")
     const [rows, setRows] = useState([{}])
+    const [activityModal, setActivityModal] = useState(false)
     useEffect( () => {
         fetch('https://gepartner-app.herokuapp.com/caps?data=content&gid=' + route.params.idCapsula)
             .then(response => {return response.json();})
             .then(data => {
+                console.log("content",data.data.content)
                 let content = JSON.parse(data.data.content)
                 console.log(content["examples"])
                 setTitle(content["title"])
@@ -31,7 +34,6 @@ export default function VocabularyScreen({navigation,route}: {navigation:any, ro
     }, [noBody])
 
     const renderItem  = ({item}) => {
-        console.log("item",item)
         return(
             <View style={styles.row}>
                 { item.word !== undefined && <View style={styles.div}>
@@ -48,29 +50,49 @@ export default function VocabularyScreen({navigation,route}: {navigation:any, ro
 
     return (
         <View style={styles.container}>
+            <Modal // Menu que muestra los detalles de las capsulas.
+                transparent={true}
+                animationType={"fade"}
+                visible={activityModal}
+                onRequestClose={() => { setActivityModal(!activityModal) }} >
+                
+                {/* Diseño del tamaño completo de la pantalla */}
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding:10,}}>
+
+                    { /* Vista del cuadro interno del Modal */}
+                    <View style={styles.containerModal}>
+                        <IconButton style={{ position: 'absolute',right: -5, top:0,}} icon="close" onPress={() => { setActivityModal(!activityModal); }} />
+                        <Text style={styles.titleText}>{title}</Text>
+                        <View style={styles.cabecera}>
+                            <View style={styles.div}>
+                            <Text style={styles.cabeceraText}>Palabras</Text>
+                            </View>
+                            <View style={styles.div}>
+                            <Text style={styles.cabeceraText}>Ejemplos</Text>
+                            </View>
+                        </View>
+                        <View style= {styles.flatList}>
+                            <FlatList 
+                                data={rows}
+                                renderItem={renderItem}
+                                keyExtractor={(item:any) => item.id.toString()}
+                                extraData={isBusy}
+                            />
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
             { isBusy ? <ActivityIndicator size="large" color="#00ff00"/> : 
             <View style = {styles.subContainer}>
-                <View style={styles.onlyText}>
                 <Text style={styles.titleText}>{title}</Text>
+                <ScrollView style={styles.onlyText}>
                 <Text style={styles.descText}>{desc}</Text>
-                </View>
-                <View style={styles.cabecera}>
-                    <View style={styles.div}>
-                    <Text style={styles.cabeceraText}>Palabras</Text>
-                    </View>
-                    <View style={styles.div}>
-                    <Text style={styles.cabeceraText}>Ejemplos</Text>
-                    </View>
-                </View>
-                <View style= {styles.flatList}>
-                    <FlatList 
-                        data={rows}
-                        renderItem={renderItem}
-                        keyExtractor={(item:any) => item.id.toString()}
-                        extraData={isBusy}
-                    />
-                </View>
+                </ScrollView>
                 <View style = {styles.viewButton}>
+                    <TouchableOpacity style={styles.button} onPress={() =>(setActivityModal(!activityModal))}>
+                        <Text style={styles.innerButton}> Ejemplos </Text>
+                    </TouchableOpacity>
                     <TouchableOpacity style={styles.button} onPress={() =>(navigation.navigate("ChatPerScreen", {idCapsula: route.params.idCapsula}))}>
                         <Text style={styles.innerButton}> Continuar </Text>
                     </TouchableOpacity>
@@ -112,9 +134,6 @@ const styles = StyleSheet.create({
         marginHorizontal: 4,
     },
     onlyText:{
-        flex: 6,
-        justifyContent: 'center',
-        alignItems: 'center',
         backgroundColor: '#c7f9cc',
         borderWidth: 2,
         borderColor: '#22577a',
@@ -131,7 +150,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: "bold",
         color: '#22577a',
-        marginBottom: 5,
+        marginBottom: 15,
     },
     descText:{
         fontSize:15,
@@ -149,7 +168,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     row: {
-        flex: 2,
         justifyContent: 'flex-start',
         flexDirection: 'row',
         backgroundColor: '#c7f9cc',
@@ -160,8 +178,8 @@ const styles = StyleSheet.create({
         padding: 2,
     },
     cabecera:{
-        flex: 2,
-        justifyContent: 'flex-start',
+        flex: 1,
+        // justifyContent: 'flex-start',
         flexDirection: 'row',
         backgroundColor: '#22577a',
         borderColor: '#22577a',
@@ -174,11 +192,18 @@ const styles = StyleSheet.create({
         width: 190,
     },
     flatList:{
-        flex: 15,
+        flex: 12,
     },
     viewButton:{
-        flex: 1,
         justifyContent: 'center',
-
+        flexDirection: 'row',
+    },
+    containerModal:{
+        flex: 1,
+        alignItems: 'center', // Orientar desde el centro horizontal
+        backgroundColor: '#f4f4f4',
+        width: "100%",
+        maxHeight: '85%',
+        paddingTop: 8,
     }
 });
