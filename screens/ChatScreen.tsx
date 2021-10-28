@@ -5,7 +5,7 @@ import * as FileSystem from 'expo-file-system';
 import * as Speech from 'expo-speech';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Component } from 'react';
-import { Button, Clipboard, Modal, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Button, Clipboard, Modal, Platform, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Bubble, GiftedChat, Send } from 'react-native-gifted-chat';
 import { Colors, IconButton, ProgressBar } from 'react-native-paper';
@@ -404,9 +404,9 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
       console.error('Failed to start recording', err);
     }
   }
-  
 
-  async function stopRecording() {
+
+ async function stopRecording() {
     console.log('Stopping recording..');
     setRecording(undefined);
     await recording.stopAndUnloadAsync();
@@ -418,13 +418,30 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
         uri
       );
       const body = JSON.parse(response.body);
-      console.log(body);
-      setText(body.text);
+      console.log(body); //body.ans contiene la respuesta el audio transcrito
+      
+      if (body.ans == "Could not recognize speech"){
+        Alert.alert("Error", "No pudimos escuchar bien tu mensaje de voz! Inténtalo de nuevo", [
+          {text: "Entendido", onPress: () => console.log('alert closed')}
+        ]);
+      }
+
+      else{
+        setinputText(body.ans);
+      }
+      
+      setModalAudioVisibility(!modalAudioVisibility);
     } catch (err) {
       console.error(err);
+      Alert.alert("Error", "No pudimos escuchar bien tu mensaje de voz! Inténtalo de nuevo", [
+        {text: "Entendido", onPress: () => console.log('alert closed')}
+      ]);
+      setModalAudioVisibility(!modalAudioVisibility);
     } 
     console.log(recording);
   }
+   
+
 
   const CloseSTT = () => {
     setModalAudioVisibility(!modalAudioVisibility);
@@ -485,35 +502,31 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
       </Modal>  
   
 
-       {/* Modal del Speech To Text la pantalla entera, por lo que se divide en varias vistas, donde la parte externa es transparente */}
-       <Modal
-        transparent={true}
-        animationType={"slide"}
-        visible={modalAudioVisibility}
-        onRequestClose={() => { setModalVisibility(!modalAudioVisibility) }} >
-        {/* Diseño del tamaño completo de la pantalla */}
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          { /* Vista del cuadro interno del Modal */}
-          <View style={[styles.MenuTTS, {height: 120}]}>
-            
-            <IconButton style={{position:'absolute', right:10}} icon="close" onPress={() => { CloseSTT() }} />
-          
-            {/* <ScrollView style={styles.TextStyle}> 
-              <Text style={{fontSize: 18, paddingBottom:5, paddingTop:5, textAlign: 'center',}}> "{TTS_Text}" </Text>
-            </ScrollView> */}
+      {/* Modal del Speech To Text la pantalla entera, por lo que se divide en varias vistas, donde la parte externa es transparente */}
+      <Modal
+          transparent={true}
+          animationType={"slide"}
+          visible={modalAudioVisibility}
+          onRequestClose={() => { setModalAudioVisibility(!modalAudioVisibility) }} >
+          {/* Diseño del tamaño completo de la pantalla */}
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            { /* Vista del cuadro interno del Modal */}
+            <View style={[styles.MenuTTS, {height: 120}]}>
+              
+              <IconButton style={{position:'absolute', right:10}} icon="close" onPress={() => { CloseSTT() }} />
 
-            {/* Rows para colocar botones. */}
-            <View style={{ position:'relative', maxWidth: '80%', top: 40}}>
-                <View>
-                  <Button
-                    title={recording ? "Stop Recording" : "Start Recording"}
-                    onPress={recording ? stopRecording : startRecording}
-                  />
-                </View> 
-              </View>  
+              {/* Rows para colocar botones. */}
+              <View style={{ position:'relative', maxWidth: '80%', top: 40}}>
+                  <View>
+                    <Button
+                      title={recording ? "Deja de grabar" : "Comienza a grabar tu audio"}
+                      onPress={recording ? stopRecording : startRecording}
+                    />
+                  </View> 
+                </View>  
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
 
             
       <GiftedChat
