@@ -171,7 +171,6 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
                 .then(favInfo => {
             
                     var fav: any[] = [];
-
                     // Se asignan como favoritas aquellas capsulas marcadas por el usuario
                     favInfo.user.favorites.forEach((item: any) => {
                         capsuleDict[item].favorite = true;
@@ -187,8 +186,6 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
             fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=completed')
                 .then(response => { return response.json(); })
                 .then(completionInfo => {
-                    //console.log(completionInfo.user.completed); // Es un array similar a las favoritas
-
                     var complete: any[] = [];
 
                     completionInfo.user.completed.forEach((item: any) => {
@@ -196,8 +193,6 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
                         complete.push(item); // Guarda el indice de las capsulas terminadas
                         //console.log(capsuleDict[item.toString()]);
                     });
-                    // Guarda los indices de las completadas.
-                    //setCompleted(complete);
                     setAllCapsules(capsuleDict);
                 });
             
@@ -222,52 +217,12 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
                             capsuleDict[element[0].slice(1,-1)].progress = parseFloat(element[1]);
                             progressList.push(parseInt(element[0].slice(1,-1), 10));
                         });
-                        // Guarda los indices de las capsulas con progreso
-                        //setProgress(progressList);*/
                     }
                     setAllCapsules(capsuleDict);
-                    //console.log(allCapsules);
                 })
         });
     }, [])
 
-
-    useEffect(() => {
-        const unsubscribe = navigation.addListener('focus', () => {
-            // Recarga el progreso de las capsulas al volver recargar la pagina desde una 
-            if (hasLoaded) {
-                var capsuleDict = allCapsules;
-
-                fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=completed')
-                    .then(response => { return response.json(); })
-                    .then(completionInfo => {
-                        var complete: any[] = [];
-                        completionInfo.user.completed.forEach((item: any) => {
-                            capsuleDict[item.toString()].completed = true;
-                            complete.push(item); // Guarda el indice de las capsulas terminadas
-                        });
-                        setAllCapsules(capsuleDict);
-                    });
-            
-                fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=progress')
-                    .then(response => { return response.json(); })
-                    .then(progressInfo => {
-                        var progressItems = progressInfo.user.progress.slice(1, -1);
-                        if (progressItems.length != 0) {
-                            progressItems = progressItems.split(', ')
-                            var progressList: any[] = [];
-                            progressItems.forEach((element: any) => {
-                                element = element.split(":");
-                                capsuleDict[element[0].slice(1,-1)].progress = parseFloat(element[1]);
-                                progressList.push(parseInt(element[0].slice(1,-1), 10));
-                            });
-                        }
-                        setAllCapsules(capsuleDict);
-                    })
-            }
-        });
-        return unsubscribe;
-    }, [navigation]);
     
 
     
@@ -402,7 +357,7 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
             return fetch('http://gepartner-app.herokuapp.com/user/'+route.params.cUi, requestOptions)
             .then(response => { return response.json(); })
             .then(data => { 
-                    console.log(data);
+                console.log(data);
             })
         } catch (error) {
             console.log("F");
@@ -451,7 +406,6 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
             .then(response => { return response.json(); })
             .then(daily => {
                 setDailyDone(daily.user.daily_done);
-                console.log(daily.user.daily_done);
                 if (daily.user.daily_done < capsuleLimit) {
                     // Envia al usuario a la capsula seleccionada
                     navigation.navigate('VocabularyScreen', { idCapsula: selectedCapsule.id });
