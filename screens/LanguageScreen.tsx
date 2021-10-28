@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
-import { FlatList, StyleSheet, Text, View, Pressable, Modal} from 'react-native'
-import { Card, Container, FlagImg, FlagImgWrapper, FlagInfo, FlagText, Language, TextSection } from '../styles/FlagStyle'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useState } from 'react';
+import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+
+import { Card, Container, FlagImg, FlagImgWrapper, FlagInfo, FlagText, Language } from '../styles/FlagStyle';
 
 export default function LanguageScreen({navigation, route}: {navigation: any, route: any}) {
   let uid = route.params.userId
@@ -127,6 +128,7 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
   }
 
   const handlerPressConfig = () => {
+    setModalVisible(!modalVisible);
     return navigation.navigate('Configuration')
   }
 
