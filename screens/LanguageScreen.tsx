@@ -1,13 +1,6 @@
-<<<<<<< HEAD
-import React, { useState,useCallback, useEffect, useRef } from 'react'
-import { FlatList, StyleSheet, Text, View, Pressable, Modal} from 'react-native'
-import { Card, Container, FlagImg, FlagImgWrapper, FlagInfo, FlagText, Language, TextSection } from '../styles/FlagStyle'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-=======
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useState } from 'react';
+import React, { useState,useEffect,useRef } from 'react';
 import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
->>>>>>> 8a103b0c193e304a533f0d3035836e4e3210f5fb
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Subscription } from '@unimodules/core';
 import * as Notifications from 'expo-notifications';
@@ -198,14 +191,8 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
   }
 
   const handlerPressConfig = () => {
-<<<<<<< HEAD
     setModalVisible(!modalVisible)
-    console.log("tokenn",token)
     return navigation.navigate('Configuration',{ctoken: expoPushToken.split("[")[1].split("]")[0]})
-=======
-    setModalVisible(!modalVisible);
-    return navigation.navigate('Configuration')
->>>>>>> 8a103b0c193e304a533f0d3035836e4e3210f5fb
   }
 
   const handlerPress = () => {
