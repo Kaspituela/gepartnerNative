@@ -29,6 +29,10 @@ export type LanguageParamList = {
   LanguageScreen: undefined;
 };
 
+export type ConfigurationParamList = {
+  ConfigurationScreen: undefined;
+};
+
 export type ChatParamList = {
   ChatScreen: undefined;
   CreateTag: undefined;

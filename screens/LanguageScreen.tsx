@@ -126,6 +126,10 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
     }
   }
 
+  const handlerPressConfig = () => {
+    return navigation.navigate('Configuration')
+  }
+
   const handlerPress = () => {
     AsyncStorage.removeItem('userID').then((res) => console.log(res))
     /*AsyncStorage.getItem('userID').then((value) => {console.log(value)})*/
@@ -148,6 +152,9 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
           </View>
           <Pressable style={styles.Membership} onPress={() => handlerPressMembership()} >
             <Text style={{color: '#c7f9cc'}}>{premium}</Text>
+          </Pressable>
+          <Pressable style={styles.Notifications} onPress={() => handlerPressConfig()} >
+            <Text style={{color: '#c7f9cc'}}>Configuración</Text>
           </Pressable>
           <Pressable style={styles.CloseSession} onPress={() => handlerPress()} >
             <Text style={{color: '#c7f9cc'}}>Cerrar Sesión</Text>
@@ -257,6 +264,14 @@ const styles = StyleSheet.create({
       height: 40,
       marginRight: 10,
       borderTopLeftRadius: 10, 
+    },
+    Notifications:{
+      backgroundColor: '#000',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 200,
+      height: 40,
+      marginRight: 10,
     },
     CloseSession: {
       backgroundColor: '#000',
