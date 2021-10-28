@@ -11,18 +11,18 @@ export default function AdminScreen ({navigation, route}: {navigation: any, rout
     const [modalEditCap, setModalEditCap] = useState(false)
     const [modalDesCap, setModalDesCap] = useState(false)
     const [editCap, setEditCap] = useState(false)
-    const [name, onChangeName] = useState('')
-    const [desc, onChangeDesc] = useState('')
-    const [lang, onChangeLang] = useState('')
-    const [level, onChangeLevel] = useState('')
-    const [membership, onChangeMembership] = useState('')
-    const [vocab, onChangeVocab] = useState('')
-    const [prompt, onChangePrompt] = useState('')
-    const [baseAct, onChangeBaseAct] = useState('')
-    const [contTitle, onChangeContTitle] = useState('')
-    const [contDesc, onChangeContDesc] = useState('')
-    const [contWords, onChangeContWords] = useState('')
-    const [contExample, onChangeContExample] = useState('')
+    const [name, onChangeName] = useState("")
+    const [desc, onChangeDesc] = useState("")
+    const [lang, onChangeLang] = useState("")
+    const [level, onChangeLevel] = useState("")
+    const [membership, onChangeMembership] = useState("")
+    const [vocab, onChangeVocab] = useState("")
+    const [prompt, onChangePrompt] = useState("")
+    const [baseAct, onChangeBaseAct] = useState("")
+    const [contTitle, onChangeContTitle] = useState("")
+    const [contDesc, onChangeContDesc] = useState("")
+    const [contWords, onChangeContWords] = useState("")
+    const [contExample, onChangeContExample] = useState("")
     const [allCap, setAllCap] = useState<any>({})
     const [renderedCapsules, setRenderedCapsules] = useState<any>([])
     const toggleSwitch = (index:any) => {
@@ -34,17 +34,17 @@ export default function AdminScreen ({navigation, route}: {navigation: any, rout
     const [position, setPosition] = useState(0)
     const [toggle, setToggle] = useState(false)
     const [objeto, setObjeto] = useState({
-                                            id: '',
-                                            name: '', 
+                                            id: "",
+                                            name: "", 
                                             visible: false,
-                                            baseAct: '',
-                                            desc: '',
+                                            baseAct: "",
+                                            desc: "",
                                             lang: 0,
                                             level: 0,
                                             premium: false,
-                                            prompt: '',
-                                            vocab: '',
-                                            content: ''
+                                            prompt: "",
+                                            vocab: "",
+                                            content: ""
                                         })
  
     let uid = route.params.userId
@@ -63,10 +63,10 @@ export default function AdminScreen ({navigation, route}: {navigation: any, rout
                 console.log(item.visible)
                 console.log(item.premium)
                 if (item.visible){
-                    aux = 'toggle-on'
+                    aux = "toggle-on"
                 }
                 else {
-                    aux = 'toggle-off'
+                    aux = "toggle-off"
                 }
                 capsules.push({
                     id: item.id,
@@ -136,18 +136,21 @@ export default function AdminScreen ({navigation, route}: {navigation: any, rout
             let lang2 = 0
             let level2 = 0
             let membership2 = false
-            const listBaseAct = baseAct.split('$')
-            const listContWords = contWords.split('$')
-            const aux2 = contExample.split('$')
+            const listBaseAct = baseAct.split("$")
+            const aux = contWords.split("/")
+            const listContWords:any = []
+            aux.map((element:string) => listContWords.push(element.split("$")))
+            console.log(listContWords)
+            const aux2 = contExample.split("$")
             console.log(aux2)
             const aux3:any = []
-            aux2.map((element:any) => aux3.push(element.split(' ')))
+            aux2.map((element:string) => aux3.push(element.split(" ")))
             console.log(aux3)
             const aux4:any = []
-            aux3.map((element1:any) => aux4.push(element1.map((element2:any) => element2.split('-'))))
+            aux3.map((element1:any) => aux4.push(element1.map((element2:any) => element2.split("-"))))
             console.log(aux4)
             const listContExample:any = []
-            aux4.map((element1:any) => listContExample.push(element1.map((element2:any) => element2.join(' '))))
+            aux4.map((element1:any) => listContExample.push(element1.map((element2:any) => element2.join(" "))))
             console.log(listContExample)
             if (lang == '0'){
                 lang2 = 0
@@ -421,57 +424,86 @@ export default function AdminScreen ({navigation, route}: {navigation: any, rout
             >
                 <ScrollView>
                     <View style={styles.Exit2}>
-                        <Icon style={{marginTop:20, marginLeft:10}} onPress={() => { setModalAddCap(!modalAddCap) }} name="arrow-left" size={30} />
+                        <Icon style={{marginTop:20, marginLeft:10}} onPress={() => { 
+                            onChangeName("")
+                            onChangeDesc("")
+                            onChangeLang("")
+                            onChangeLevel("")
+                            onChangeMembership("")
+                            onChangeVocab("")
+                            onChangePrompt("")
+                            onChangeBaseAct("")
+                            onChangeContTitle("")
+                            onChangeContDesc("")
+                            onChangeContWords("")
+                            onChangeContExample("")
+                            setModalAddCap(!modalAddCap) }} name="arrow-left" size={30} />
                     </View>
                     <View style={styles.Datos}>
                         <Text style={styles.Title}>Nueva Cápsula</Text>
+                        <Pressable style={styles.RegPress} onPress={() => {
+                            onChangeName("Feria")
+                            onChangeDesc("Demostración")
+                            onChangeLang("0")
+                            onChangeLevel("0")
+                            onChangeMembership("true")
+                            onChangeVocab("Una,Demostración")
+                            onChangePrompt("A conversation between a father and his son Teacher:Hello my son")
+                            onChangeBaseAct("Hello my son$Good Bye my son")
+                            onChangeContTitle("Prueba Feria")
+                            onChangeContDesc("Esto es una prueba")
+                            onChangeContWords("This is$Esto es/Hello my son$Hola hijo mío")
+                            onChangeContExample("I-am-tired Estoy-aburrido$I-am-happy Estoy-feliz")
+                        }} >
+                            <Text style={{color: '#22577a'}}>Rellenar</Text>
+                        </Pressable>
                         <View>
                             <Text style={{color: '#22577a', fontSize: 15}}>Nombre de la cápsula</Text>
-                            <TextInput style={styles.Input}  onChangeText={onChangeName} value={name || ''} placeholder="" placeholderTextColor="#c7f9cc"/>
+                            <TextInput style={styles.Input}  onChangeText={onChangeName} value={name || ""} placeholder="" placeholderTextColor="#c7f9cc"/>
                         </View>
                         <View>
                             <Text style={{color: '#22577a', fontSize: 15}}>Descripción de la cápsula</Text>
-                            <TextInput multiline style={styles.Input}  onChangeText={onChangeDesc} value={desc || ''} placeholder="" placeholderTextColor="#c7f9cc"/>
+                            <TextInput multiline style={styles.Input}  onChangeText={onChangeDesc} value={desc || ""} placeholder="" placeholderTextColor="#c7f9cc"/>
                         </View>
                         <View>
                             <Text style={{color: '#22577a', fontSize: 15}}>Lenguaje de la cápsula</Text>
-                            <TextInput multiline style={styles.Input}  onChangeText={onChangeLang} value={lang || ''} placeholder="" placeholderTextColor="#c7f9cc"/>
+                            <TextInput multiline style={styles.Input}  onChangeText={onChangeLang} value={lang || ""} placeholder="" placeholderTextColor="#c7f9cc"/>
                         </View>
                         <View>
                             <Text style={{color: '#22577a', fontSize: 15}}>Nivel de la cápsula</Text>
-                            <TextInput multiline style={styles.Input}  onChangeText={onChangeLevel} value={level || ''} placeholder="" placeholderTextColor="#c7f9cc"/>
+                            <TextInput multiline style={styles.Input}  onChangeText={onChangeLevel} value={level || ""} placeholder="" placeholderTextColor="#c7f9cc"/>
                         </View>
                         <View>
                             <Text style={{color: '#22577a', fontSize: 15}}>Membresía de la cápsula</Text>
-                            <TextInput multiline style={styles.Input}  onChangeText={onChangeMembership} value={membership || ''} placeholder="" placeholderTextColor="#c7f9cc"/>
+                            <TextInput multiline style={styles.Input}  onChangeText={onChangeMembership} value={membership || ""} placeholder="" placeholderTextColor="#c7f9cc"/>
                         </View>
                         <View>
                             <Text style={{color: '#22577a', fontSize: 15}}>Vocabulario de la cápsula</Text>
-                            <TextInput multiline style={styles.Input}  onChangeText={onChangeVocab} value={vocab || ''} placeholder="Escriba las palabras separadas por coma" placeholderTextColor="#22577a"/>
+                            <TextInput multiline style={styles.Input}  onChangeText={onChangeVocab} value={vocab || ""} placeholder="Escriba las palabras separadas por coma" placeholderTextColor="#22577a"/>
                         </View>
                         <View>
                             <Text style={{color: '#22577a', fontSize: 15}}>Prompt de la cápsula</Text>
-                            <TextInput multiline style={styles.Input}  onChangeText={onChangePrompt} value={prompt || ''} placeholder="" placeholderTextColor="#c7f9cc"/>
+                            <TextInput multiline style={styles.Input}  onChangeText={onChangePrompt} value={prompt || ""} placeholder="" placeholderTextColor="#c7f9cc"/>
                         </View>
                         <View>
                             <Text style={{color: '#22577a', fontSize: 15}}>Actividades base de la cápsula</Text>
-                            <TextInput multiline style={styles.Input}  onChangeText={onChangeBaseAct} value={baseAct || ''} placeholder="Escriba las palabras separadas por un signo $" placeholderTextColor="#22577a"/>
+                            <TextInput multiline style={styles.Input}  onChangeText={onChangeBaseAct} value={baseAct || ""} placeholder="Escriba las palabras separadas por un signo $" placeholderTextColor="#22577a"/>
                         </View>
                         <View>
                             <Text style={{color: '#22577a', fontSize: 15}}>Título de contenido de la cápsula</Text>
-                            <TextInput multiline style={styles.Input}  onChangeText={onChangeContTitle} value={contTitle || ''} placeholder="" placeholderTextColor="#c7f9cc"/>
+                            <TextInput multiline style={styles.Input}  onChangeText={onChangeContTitle} value={contTitle || ""} placeholder="" placeholderTextColor="#c7f9cc"/>
                         </View>
                         <View>
                             <Text style={{color: '#22577a', fontSize: 15}}>Descripción de contenido de la cápsula</Text>
-                            <TextInput multiline style={styles.Input}  onChangeText={onChangeContDesc} value={contDesc || ''} placeholder="" placeholderTextColor="#c7f9cc"/>
+                            <TextInput multiline style={styles.Input}  onChangeText={onChangeContDesc} value={contDesc || ""} placeholder="" placeholderTextColor="#c7f9cc"/>
                         </View>
                         <View>
                             <Text style={{color: '#22577a', fontSize: 15}}>Palabras de contenido de la cápsula</Text>
-                            <TextInput multiline style={styles.Input}  onChangeText={onChangeContWords} value={contWords || ''} placeholder="Escriba las palabras separadas por un espacio y luego por un signo $. Ejemplo: I yo$you tu" placeholderTextColor="#22577a"/>
+                            <TextInput multiline style={styles.Input}  onChangeText={onChangeContWords} value={contWords || ""} placeholder="Escriba las palabras separadas por un espacio y luego por un signo $. Ejemplo: I yo$you tu" placeholderTextColor="#22577a"/>
                         </View>
                         <View>
                             <Text style={{color: '#22577a', fontSize: 15}}>Ejemplos de contenidos de la cápsula</Text>
-                            <TextInput multiline style={styles.Input}  onChangeText={onChangeContExample} value={contExample || ''} placeholder="Escriba las palabras separadas por un guión, las frases separadas por un espacio y luego por un signo $. Ejemplo: I-am-tired Estoy-aburrido$I-am-happy Estoy-feliz" placeholderTextColor="#22577a"/>
+                            <TextInput multiline style={styles.Input}  onChangeText={onChangeContExample} value={contExample || ""} placeholder="Escriba las palabras separadas por un guión, las frases separadas por un espacio y luego por un signo $. Ejemplo: I-am-tired Estoy-aburrido$I-am-happy Estoy-feliz" placeholderTextColor="#22577a"/>
                         </View>
                         <Pressable style={styles.RegPress} onPress={() => {handlerPressAdd(name, desc, lang, level, membership, vocab, prompt, baseAct, contTitle, contDesc, contWords, contExample)}} >
                             <Text style={{color: '#22577a'}}>Agregar</Text>
