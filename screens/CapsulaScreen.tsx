@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { FlatList, Modal, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { ScrollView } from 'react-native-gesture-handler';
 import { IconButton } from 'react-native-paper';
 
 import {
@@ -29,6 +28,7 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
 
     // Definicion de número de capsulas que el usuario gratis puede completar en un solo dia. Por defecto 2.
     var capsuleLimit = 2;
+    const [dailyDone, setDailyDone] = useState(0);
     
     var langFlag = route.params.langFlag;
     var lang = route.params.Lang == 'english' ? 0 : 1;
@@ -66,10 +66,10 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
     const [selectedIsFavorite, set_selectedIsFavorite] = useState(false);
 
     // Guarda el listado de capsulas completadas, similar a los favoritos (Utilizado para funcion PUT)
-    const [completed, setCompleted] = useState<any>([]);
+    //const [completed, setCompleted] = useState<any>([]);
 
     // Guarda el indice de las capsulas que tienen un progreso distinto a 0. El valor se guarda en la informacion de la capsula. (Usado para funcion PUT)
-    const [progress, setProgress] = useState<any>([]);
+    //const [progress, setProgress] = useState<any>([]);
 
 
     // El menú de capsulas mostrará renderedCapsules en el menú. De esta forma la funcion solo se necesita ajustar a esta variable, 
@@ -177,10 +177,10 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
                     completionInfo.user.completed.forEach((item: any) => {
                         capsuleDict[item.toString()].completed = true;
                         complete.push(item); // Guarda el indice de las capsulas terminadas
-                        console.log(capsuleDict[item.toString()]);
+                        //console.log(capsuleDict[item.toString()]);
                     });
                     // Guarda los indices de las completadas.
-                    setCompleted(complete);
+                    //setCompleted(complete);
                     setAllCapsules(capsuleDict);
                 });
             
@@ -196,19 +196,20 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
                     if (progressItems.length != 0) {
 
                         // Se separa cada elemento
-                        progressItems = progressItems.replace(/\s/g, '').split(",");
+                        progressItems = progressItems.split(',')
                         var progressList: any[] = [];
 
                         progressItems.forEach((element: any) => {
                             element = element.split(":");
-                            capsuleDict[element[0]].progress = parseFloat(element[1]);
-                            progressList.push(parseInt(element[0], 10));
+
+                            capsuleDict[element[0].slice(1,-1)].progress = parseFloat(element[1]);
+                            progressList.push(parseInt(element[0].slice(1,-1), 10));
                         });
                         // Guarda los indices de las capsulas con progreso
-                        setProgress(progressList);
+                        //setProgress(progressList);*/
                     }
                     setAllCapsules(capsuleDict);
-                    console.log(allCapsules);
+                    //console.log(allCapsules);
                 })
 
         });
@@ -237,13 +238,12 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
 
     // Cambia el renderer para mostrar las capsulas seleccionadas en el visor de capsulas.
     const renderCapsules = (nivelCapsula: string) => {
-        // No activar las capsulas si la alerta está puesta
+        // No activar las capsulas si la alerta está activa
         if (alertModal) {
             return;
         }
 
         var lvlCapsula = parseInt(nivelCapsula, 10);
-    
         // El menu de capsulas solo se carga cuando el usuario tiene el nivel de idioma requerido para acceder
         if (nivelIdioma >= lvlCapsula) {
             setShowLevel(lvlCapsula);
@@ -265,9 +265,12 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
 
             // Se cargan las capsulas que se van a renderizar utilizando sus indices dentro del diccionario de todas las capsulas
             var renderer:any[] = [];
-            renderIndex.forEach((index:any) => {
-                renderer.push(allCapsules[index]);
+            renderIndex.forEach((index: any) => {
+                if (allCapsules[index].visible) { // Solo se mostraran las capsulas visibles.
+                    renderer.push(allCapsules[index]);                   
+                }
             });
+
             setRenderedCapsules(renderer);
 
             setAlertModal(false);
@@ -354,18 +357,30 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
 
     const renderFavCapsules = () => {
 
+        // Define si el usuario tiene capsulas "disponible" (por si tiene en fav pero estan invisibles)
+        var unable = false;
+
         // Muestra las capsulas favoritas en caso de que estas existan.
         if (favCapsules.length > 0) {
             setShowLevel(3);
 
             var renderer:any[] = [];
-            favCapsules.forEach((index:any) => {
-                renderer.push(allCapsules[index]);
+            favCapsules.forEach((index: any) => {
+                if (allCapsules[index].visible) { //Solo se agregan las capsulas visibles
+                    renderer.push(allCapsules[index]);
+                }
             });
-            setRenderedCapsules(renderer);
-
-            setCapsuleModal(true);
+            if (renderer.length > 0) { // Se muestran las capsulas cuando estas son visibles
+                setRenderedCapsules(renderer);
+                setCapsuleModal(true);
+            } else { // Si todas las capsuas favoritas del usuario están invisibles, se mostrará que no hay disponibles.
+                unable = true;
+            }
         } else {
+            unable = true;
+        }
+        
+        if (unable) {
             if (!activityModal && !alertModal && !capsuleModal) {
                 setAlertMessage("No hay capsulas en Favoritos");
                 setAlertModal(true);
@@ -375,14 +390,12 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
 
     // Se abre la capsula seleccionada en el menu de capsulas
     const openCapsule = () => {
-
-        var canDo = false;
-
         // Revision para verificar que el usuario gratis solo puede completar 2 capsulas por dia
         if (!membership) {
             fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=daily_done')
             .then(response => { return response.json(); })
             .then(daily => {
+                setDailyDone(daily.user.daily_done);
                 console.log(daily.user.daily_done);
                 if (daily.user.daily_done < capsuleLimit) {
                     // Envia al usuario a la capsula seleccionada
@@ -403,6 +416,14 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
 
 
     const viewCapsule = (item: any) => {
+
+        if (!membership && dailyDone >= capsuleLimit) {
+            setAlertMessage("Ya has llegado al límite de capsulas diarias");
+            if (!activityModal && !alertModal) {
+                setAlertModal(true);   
+            }            
+            return;
+        }
 
         // Las condiciones en los 2 IF internos evitan que se pueda abrir varios menus de forma simultanea
         if (item.premium && !membership) {
@@ -462,21 +483,17 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
                         <View style={styles.capsuleInternal}>
                                 
                             <View style={styles.capsuleTitle}>
-                                <ScrollView
-                                    style={styles.TextStyle}>
-                                    <Text style={{fontFamily: 'serif', fontSize: 25, textAlign: 'center',}}>{selectedCapsule.name}</Text>
-                                </ScrollView>
+                                <Text style={{fontFamily: 'serif', fontSize: 25, textAlign: 'center',}}>{selectedCapsule.name}</Text>
                             </View>
-{/*
 
-                                <ScrollView style={styles.capsuleDescription}>
-                                    <Text style={{fontFamily: 'serif', fontSize: 20, textAlign: 'center'}}>{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}{selectedCapsule.desc}</Text>
-                                </ScrollView>
-                            
-                                <TouchableOpacity style={{paddingTop: 20, bottom: 0}} onPress={()=> {openCapsule()}}>
-                                    <Text style={styles.openButton}>Realizar</Text>
-                                </TouchableOpacity>
-                                */}
+                            <View style={styles.capsuleDescription}>
+                                <Text style={{fontFamily: 'serif', fontSize: 20, textAlign: 'center', padding: 10}}>{selectedCapsule.desc}</Text>
+                            </View>
+                        
+                            <TouchableOpacity style={{position: 'relative', paddingTop: 20, bottom: 0}} onPress={()=> {openCapsule()}}>
+                                <Text style={styles.openButton}>Realizar</Text>
+                            </TouchableOpacity>
+    
                         </View>
                     </View>    
                 </View>
@@ -506,11 +523,11 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
                                 <CapCard onPress={() => { viewCapsule(item) }}>
                                     <CapContainer style={[{ height: 85, width: '100%' }, item.completed ? {backgroundColor: 'rgba(34, 210, 108, 0.7)'} : {} ]}>
                                         <CapImgWrapper>
-                                                <View style={[(!membership && item.premium) ? { opacity: 0.6, position:'relative', zIndex: 1 } : {opacity:1}]}>
+                                                <View style={[((!membership && item.premium) || (!membership && dailyDone >= capsuleLimit)) ? { opacity: 0.6, position:'relative', zIndex: 1 } : {opacity:1}]}>
                                                     <CapImg source={langFlag} />
                                                     <CapImg source={CrownIcon} style={[item.premium ? styles.capsuleCrown : styles.Unlocked]} />
                                                 </View>
-                                                <CapImg source={LockIcon} style={[(!membership && item.premium) ? styles.LockedCapsule : styles.Unlocked]}/>
+                                                <CapImg source={LockIcon} style={[((!membership && item.premium) || (!membership && dailyDone >= capsuleLimit)) ? styles.LockedCapsule : styles.Unlocked]}/>
                                         </CapImgWrapper>
                                         <CapText>
                                             <CapName>   {item.name}</CapName>
@@ -661,14 +678,15 @@ const styles = StyleSheet.create({
         // justifyContent: 'center', // Orientar desde el centro vertical
         backgroundColor: '#fefefe',
         width: "90%",
-        maxHeight: '65%',
+        maxHeight: '80%',
         borderRadius: 30,
         borderWidth: 3,
         borderColor: '#000000',
     },
     capsuleInternal: {
+        position: 'relative',
         alignItems: 'center', // Orientar desde el centro horizontal
-        justifyContent: 'center', // Orientar desde el centro vertical
+        //justifyContent: 'center', // Orientar desde el centro vertical
         paddingLeft: 15,
         paddingRight: 15,
         paddingTop: 40,
@@ -692,29 +710,12 @@ const styles = StyleSheet.create({
         borderColor: '#000000',
     },
     capsuleDescription: {
-        //justifyContent: 'center',,
-        backgroundColor: '#f5f5f5',
+        //justifyContent: 'center',
+        backgroundColor: '#ffffff',
         borderWidth: 1,
-        borderColor: '#e0e0e0',
-    },
-
-
-    TextStyle: {
-        position: 'relative',
-        width: "90%",
-        marginLeft: 10,
-        marginRight: 10,
-        paddingLeft: 10,
-        paddingRight: 10,
-        borderWidth: 1,
-        borderRadius:3,
-        borderColor: "gray",
-        backgroundColor: "#aaaaaa",
-        textAlign: 'center',
+        borderColor: '#f0f0f0',
+        borderRadius: 10,
+        maxHeight: '82%',
         overflow: 'hidden',
-        maxHeight: 100,
-        //minHeight: 150
-      },
-});
-  
-            
+    },
+});   
