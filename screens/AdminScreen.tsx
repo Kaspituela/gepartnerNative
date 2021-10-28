@@ -136,11 +136,9 @@ export default function AdminScreen ({navigation, route}: {navigation: any, rout
             let lang2 = 0
             let level2 = 0
             let membership2 = false
-            const listBaseAct = baseAct.split(' ')
-            const aux = contWords.split(',')
-            const listContWords:any = []
-            aux.map((element:any) => listContWords.push(element.split(' ')))
-            const aux2 = contExample.split(',')
+            const listBaseAct = baseAct.split('$')
+            const listContWords = contWords.split('$')
+            const aux2 = contExample.split('$')
             console.log(aux2)
             const aux3:any = []
             aux2.map((element:any) => aux3.push(element.split(' ')))
@@ -457,7 +455,7 @@ export default function AdminScreen ({navigation, route}: {navigation: any, rout
                         </View>
                         <View>
                             <Text style={{color: '#22577a', fontSize: 15}}>Actividades base de la cápsula</Text>
-                            <TextInput multiline style={styles.Input}  onChangeText={onChangeBaseAct} value={baseAct || ''} placeholder="Escriba las palabras separadas por coma" placeholderTextColor="#22577a"/>
+                            <TextInput multiline style={styles.Input}  onChangeText={onChangeBaseAct} value={baseAct || ''} placeholder="Escriba las palabras separadas por un signo $" placeholderTextColor="#22577a"/>
                         </View>
                         <View>
                             <Text style={{color: '#22577a', fontSize: 15}}>Título de contenido de la cápsula</Text>
@@ -469,11 +467,11 @@ export default function AdminScreen ({navigation, route}: {navigation: any, rout
                         </View>
                         <View>
                             <Text style={{color: '#22577a', fontSize: 15}}>Palabras de contenido de la cápsula</Text>
-                            <TextInput multiline style={styles.Input}  onChangeText={onChangeContWords} value={contWords || ''} placeholder="Escriba las palabras separadas por un espacio y luego por una coma. Ejemplo: I yo,you tu" placeholderTextColor="#22577a"/>
+                            <TextInput multiline style={styles.Input}  onChangeText={onChangeContWords} value={contWords || ''} placeholder="Escriba las palabras separadas por un espacio y luego por un signo $. Ejemplo: I yo$you tu" placeholderTextColor="#22577a"/>
                         </View>
                         <View>
                             <Text style={{color: '#22577a', fontSize: 15}}>Ejemplos de contenidos de la cápsula</Text>
-                            <TextInput multiline style={styles.Input}  onChangeText={onChangeContExample} value={contExample || ''} placeholder="Escriba las palabras separadas por un guión, las frases separadas por un espacio y luego por una coma. Ejemplo: I-am-tired Estoy-aburrido,I-am-happy Estoy-feliz" placeholderTextColor="#22577a"/>
+                            <TextInput multiline style={styles.Input}  onChangeText={onChangeContExample} value={contExample || ''} placeholder="Escriba las palabras separadas por un guión, las frases separadas por un espacio y luego por un signo $. Ejemplo: I-am-tired Estoy-aburrido$I-am-happy Estoy-feliz" placeholderTextColor="#22577a"/>
                         </View>
                         <Pressable style={styles.RegPress} onPress={() => {handlerPressAdd(name, desc, lang, level, membership, vocab, prompt, baseAct, contTitle, contDesc, contWords, contExample)}} >
                             <Text style={{color: '#22577a'}}>Agregar</Text>
@@ -606,18 +604,18 @@ export default function AdminScreen ({navigation, route}: {navigation: any, rout
                         <Icon style={{marginTop:20, marginLeft:10}} onPress={() => { setModalDesCap(!modalDesCap) }} name="arrow-left" size={30} />
                     </View>
                     <Text style={styles.Title}>Deshabilitar Cápsula(s)</Text>
-                    <SafeAreaView style={{height: '70%'}}>
+                    <SafeAreaView style={{height: '65%'}}>
                         <FlatList
-                                contentContainerStyle={{ alignItems: 'flex-start'}}
+                                contentContainerStyle={{ alignItems: 'center'}}
                                 data={renderedCapsules}
                                 extraData={toggle}
                                 keyExtractor={item=>item.pos.toString()}
                                 renderItem={({ item }) => (
                                 <Card style={styles.Card}>
-                                    <FlagText >
+                                    <FlagText style={{marginRight: 20}} >
                                         <Language style={{fontFamily: 'monospace', fontSize: 17, color: '#22577a'}}>{item.name}</Language>
                                     </FlagText>
-                                    <Icon onPress={() => {handlerPressToggle(item.pos, item.id)}} name={item.toggle} size={30} />
+                                    <Icon style={{alignSelf: 'flex-end'}} onPress={() => {handlerPressToggle(item.pos, item.id)}} name={item.toggle} size={30} />
                                 </Card>
                         )}/>
                     </SafeAreaView>
@@ -698,7 +696,7 @@ const styles = StyleSheet.create({
     Title: {
         color: '#22577a',
         textAlign: 'center',
-        fontSize: 50,
+        fontSize: 40,
         marginBottom: 50,
         marginTop: 20
     },

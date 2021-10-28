@@ -34,6 +34,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
   const [playIcon, setPlayIcon] = useState("play");
   const [hasPlayed, setHasPlayed] = useState(false);
   const [TTS_Rate, setTTS_Rate] = useState(1);
+  const [varNull,setVarNull] = useState()
 
   var TTS_params = { language: (route.params.Lang == "english") ? "en" : "es", pitch: 1.0, rate: TTS_Rate }
 
@@ -48,7 +49,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
       headers: { 'Content-Type': 'application/json' },
     }
     //console.log(requestOptions)
-    let bot_id = 5 + uid
+    let bot_id = 5000 + parseInt(uid)
     fetch('http://gepartner-app.herokuapp.com/msg?lng=' + lang + '&uid=' + uid + '&bid='+bot_id, requestOptions)
 		.then(response => {return response.json();})
 		.then(data => {
@@ -66,12 +67,12 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
         setEnergyTotal(2700);
       }
     });
-  }, [])
+  }, [varNull])
 
   const addMessages = (newdata: any) =>{
     newdata = sortMessages(newdata,"id")
-    let bot_id = 5 + uid
-    console.log(newdata)
+    let bot_id = 5000 + parseInt(uid)
+    console.log("newdata",newdata)
     for(let i = 0; i < newdata.length; i++){
         let newMessage = {
           _id: newdata[i].id,
@@ -116,8 +117,8 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
           msg: usr_msj,
-          user_id: uid,
-          lng: route.params.Lang
+          user_id: parseInt(uid),
+          lng: route.params.Lang,
       })
     }
     try { // se envia mensaje a la api
@@ -129,7 +130,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
         newMessage[0].correction = 1;
         setMessageCorrection(data.correction)
         } else if (data.correction == "" && data.msg != ""){
-          let bot_id = 5 + uid
+          let bot_id = 5000 + parseInt(uid)
           let bid = data.bid === undefined ? Math.floor(Math.random() * 10000) + 1 : data.bid
           let openai_response = {
             _id: bid,
@@ -202,7 +203,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
       >
         <Text>Traducir</Text>
       </TouchableOpacity>
-      <TouchableOpacity 
+      { membership && <TouchableOpacity 
       style={styles.containerMic}
       onPress={()=>{setModalAudioVisibility(!modalAudioVisibility)}}>
        <Ionicons
@@ -210,7 +211,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
           size={24}
           color="#616161"
        />
-      </TouchableOpacity>
+      </TouchableOpacity>}
         </View>
       </Send>
     );
@@ -227,7 +228,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
       	text: messageCorrection,
       	createdAt: 0,
       	user: {
-      		_id: uid,
+      		_id: parseInt(uid),
       	},
         correction: 0,
         tags: [],
@@ -533,7 +534,7 @@ export default function ChatScreen({navigation, route}: {navigation: any, route:
         messages={messages}
         onSend={messages => onSend(messages)}
         user={{
-          _id: uid,
+          _id: parseInt(uid),
         }}
         text = {inputText}
         onInputTextChanged={text => setinputText(text)}
