@@ -223,6 +223,45 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
         });
     }, [])
 
+
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+            // Recarga el progreso de las capsulas al volver recargar la pagina desde una 
+            if (hasLoaded) {
+
+                fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=completed')
+                    .then(response => { return response.json(); })
+                    .then(completionInfo => {
+                        var capsuleDict = allCapsules;
+                        var complete: any[] = [];
+                        completionInfo.user.completed.forEach((item: any) => {
+                            capsuleDict[item.toString()].completed = true;
+                            complete.push(item); // Guarda el indice de las capsulas terminadas
+                        });
+                        setAllCapsules(capsuleDict);
+                    });
+            
+                fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=progress')
+                    .then(response => { return response.json(); })
+                    .then(progressInfo => {
+                        var capsuleDict = allCapsules;
+                        var progressItems = progressInfo.user.progress.slice(1, -1);
+                        if (progressItems.length != 0) {
+                            progressItems = progressItems.split(', ')
+                            var progressList: any[] = [];
+                            progressItems.forEach((element: any) => {
+                                element = element.split(":");
+                                capsuleDict[element[0].slice(1,-1)].progress = parseFloat(element[1]);
+                                progressList.push(parseInt(element[0].slice(1,-1), 10));
+
+                            });
+                        }
+                        setAllCapsules(capsuleDict);
+                    })
+            }
+        });
+        return unsubscribe;
+    }, [navigation]);
     
 
     
@@ -541,7 +580,10 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
                                         </CapImgWrapper>
                                         <CapText>
                                             <CapName>   {item.name}</CapName>
-                                            </CapText>
+                                            <View style={[{position:'absolute', bottom: 10, left:-50, width: 200} ,(item.progress > 0) ? {opacity: 1} : {opacity: 0}]}>
+                                                <Text style={styles.Progress}>Completitud: {Math.round((item.progress + Number.EPSILON) * 100) / 100}</Text>
+                                            </View>
+                                        </CapText>
                                     </CapContainer>
                                     <Text style={{height:3}}> </Text>
                                 </CapCard>
@@ -733,5 +775,11 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         maxHeight: '82%',
         overflow: 'hidden',
+    },
+    Progress: {
+        justifyContent: 'center', // Orientar desde el centro vertical
+        fontFamily: 'serif',
+        fontSize: 20,
+        textAlign: 'center',
     },
 });   
