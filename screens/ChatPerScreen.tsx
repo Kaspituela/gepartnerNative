@@ -76,7 +76,7 @@ export default function ChatPerScreen({navigation,route}: {navigation:any,route:
           openai_response = {
             _id: bid,
             text: data.msg,
-            createdAt: 0,
+            createdAt: new Date(),
             user: {
               _id: bot_id,
               name: 'React Native',
