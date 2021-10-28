@@ -67,6 +67,8 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
     const [selectedIsFavorite, set_selectedIsFavorite] = useState(false);
     var hasLoaded = false;
 
+    var capsuleDict : any = {};
+
     // Guarda el listado de capsulas completadas, similar a los favoritos (Utilizado para funcion PUT)
     //const [completed, setCompleted] = useState<any>([]);
 
@@ -128,7 +130,6 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
             var capsulasA:any[] = [];
             
             // Listado de todas las capsulas, con sus datos completos
-            var capsuleDict: any = {};
 
             if (data.capsules.length == 0) {
                 setAllCapsules(capsuleDict);
@@ -223,7 +224,7 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
         });
     }, [])
 
-/*
+
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
             // Recarga el progreso de las capsulas al volver recargar la pagina desde una 
@@ -232,7 +233,6 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
                 fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=completed')
                     .then(response => { return response.json(); })
                     .then(completionInfo => {
-                        var capsuleDict = allCapsules;
                         var complete: any[] = [];
                         completionInfo.user.completed.forEach((item: any) => {
                             capsuleDict[item.toString()].completed = true;
@@ -244,7 +244,6 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
                 fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=progress')
                     .then(response => { return response.json(); })
                     .then(progressInfo => {
-                        var capsuleDict = allCapsules;
                         var progressItems = progressInfo.user.progress.slice(1, -1);
                         if (progressItems.length != 0) {
                             progressItems = progressItems.split(', ')
@@ -263,7 +262,7 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
         return unsubscribe;
     }, [navigation]);
     
-*/
+
     
     const capsuleLevels = [{
             id: '0',
