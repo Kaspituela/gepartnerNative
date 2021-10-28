@@ -23,9 +23,22 @@ export default function LoginScreen ({ navigation }: {navigation : any}) {
     useEffect(() => {
         const aux = () => {
             AsyncStorage.getItem('userID').then((value) => {
-                if (value != null){
-                    return navigation.navigate('Language', {userid: value})
+                if (value != null) {
+                    console.log(value)
+                    fetch('http://gepartner-app.herokuapp.com/usd/?uid=' + value)
+                    .then(response => {return response.json();})
+                    .then(res => {
+                        console.log(res.mail)
+                        if (res.mail == 'admin@gmail.com') {
+                            return navigation.navigate('Admin', {userid: value})    
+                        } else {
+                            return navigation.navigate('Language', {userid: value})
+                        }
+                    });
                 }
+                /*if (value != null){
+                    return navigation.navigate('Language', {userid: value})
+                }*/
             })
         }
         /*async function aux () {
@@ -61,8 +74,17 @@ export default function LoginScreen ({ navigation }: {navigation : any}) {
                 if (data.ans == 'ok') {
                     onChangeMail('')
                     onChangePass('')
-                    AsyncStorage.setItem('userID', JSON.stringify(data.id))
-                    navigation.navigate('Language', {userid: data.id})
+                    console.log(mail)
+                    if (mail == 'admin@gmail.com') {
+                        console.log(mail)
+                        AsyncStorage.setItem('userID', JSON.stringify(data.id))
+                        navigation.navigate('Admin', {userid: data.id})
+                    }
+                    else {
+                        console.log('no lo puedo creer')
+                        AsyncStorage.setItem('userID', JSON.stringify(data.id))
+                        navigation.navigate('Language', {userid: data.id})
+                    }
                 }
                 else if (data.ans == 'wrong password') {
                     alert('La contraseña ingresada es incorrecta')
@@ -123,39 +145,33 @@ export default function LoginScreen ({ navigation }: {navigation : any}) {
                     .then(res => {
                         recuserid = JSON.stringify(res.uid)
                         console.log(res.uid)
-                        console.log(recuserid)
+                        const requestRecPass = { 
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                              uid: recuserid,
+                              data: 'password',
+                              value: recpass
+                            })
+                          }
+                        try { // Llamada a la api para user -> http://gepartner-app.herokuapp.com/user/
+                          return fetch('http://gepartner-app.herokuapp.com/user/', requestRecPass)
+                          .then(response => {return response.json();})
+                          .then(() => {
+                                alert('La contraseña se ha actualizado')
+                                onChangeRecMail('')
+                                onChangeRecPass('')
+                                onChangeRecPass2('')
+                          })
+                      }
+                      catch (error){
+                        console.error(error);
+                      }
                     });
                 }
                 catch (error){
                   console.error(error);
                 }
-
-                const requestRecPass = { 
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      uid: recuserid,
-                      data: 'password',
-                      value: recpass
-                    })
-                  }
-            
-                  try { // Llamada a la api para user -> http://gepartner-app.herokuapp.com/user/
-                      return fetch('http://gepartner-app.herokuapp.com/user/', requestRecPass)
-                      .then(response => {return response.json();})
-                      .then(data => {
-                          console.log(JSON.stringify(data.password))
-                          if (data.password == recpass) {
-                            alert('La contraseña ha sido actualizada con éxito')
-                          }
-                          else {
-                              alert('Ha ocurrido un error')
-                          }
-                      });
-                  }
-                  catch (error){
-                    console.error(error);
-                  }
             }
             else {
                 alert('Las contraseñas no coinciden.')

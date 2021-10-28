@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default function LanguageScreen({navigation, route}: {navigation: any, route: any}) {
   let uid = route.params.userId
+  console.log(uid)
   const [nameUser, setNameUser] = useState('')
   const [modalVisible, setModalVisible] = useState(false)
   const [membership, setMembership] = useState(false)
@@ -134,7 +135,7 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
   return (
     <Container style={styles.Container}>
       <Modal
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => {

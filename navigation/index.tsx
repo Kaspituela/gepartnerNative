@@ -14,6 +14,7 @@ import BottomTabNavigator from './BottomTabNavigator';
 import LinkingConfiguration from './LinkingConfiguration';
 import LoginNavigator from './LoginNavigator';
 import LanguageNavigator from './LanguageNavigator';
+import AdminNavigator from './AdminNavigator';
 
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
@@ -35,6 +36,7 @@ function RootNavigator() {
     <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Root" component={BottomTabNavigator} />
       <Stack.Screen name="Login" component={LoginNavigator} />
+      <Stack.Screen name="Admin" component={AdminNavigator} />
       <Stack.Screen name="Language" component={LanguageNavigator} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
     </Stack.Navigator>
