@@ -223,7 +223,7 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
         });
     }, [])
 
-
+/*
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
             // Recarga el progreso de las capsulas al volver recargar la pagina desde una 
@@ -263,7 +263,7 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
         return unsubscribe;
     }, [navigation]);
     
-
+*/
     
     const capsuleLevels = [{
             id: '0',
