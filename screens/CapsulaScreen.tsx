@@ -101,6 +101,13 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
         setMembership(route.params.isPremium);
 
         // Obtencion de las capsulas disponibles en el idioma seleccionado
+        if (!membership) {
+            fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=daily_done')
+                .then(response => { return response.json(); })
+                .then(daily => {
+                    setDailyDone(daily.user.daily_done);
+                })
+        }
 
         fetch('http://gepartner-app.herokuapp.com/caps?lang=' + lang)
         .then(response => { return response.json(); })
@@ -527,7 +534,8 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
                                                     <CapImg source={langFlag} />
                                                     <CapImg source={CrownIcon} style={[item.premium ? styles.capsuleCrown : styles.Unlocked]} />
                                                 </View>
-                                                <CapImg source={LockIcon} style={[((!membership && item.premium) || (!membership && dailyDone >= capsuleLimit)) ? styles.LockedCapsule : styles.Unlocked]}/>
+                                                <CapImg source={LockIcon} style={[(!membership && item.premium) ? styles.LockedCapsule : styles.Unlocked]} />
+                                                <CapImg source={LockIcon} style={[(!membership && dailyDone >= capsuleLimit && !item.premium) ? styles.limitLock : styles.Unlocked]} />
                                         </CapImgWrapper>
                                         <CapText>
                                             <CapName>   {item.name}</CapName>
@@ -653,6 +661,12 @@ const styles = StyleSheet.create({
         position: 'relative',
         zIndex: 10,
         top: -100,
+    },
+    limitLock: {
+        position: 'absolute',
+        zIndex: 10,
+        left: 35,
+        top: 15,
     },
     alertWindow: {
         alignItems: 'center', // Orientar desde el centro horizontal
