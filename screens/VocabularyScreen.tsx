@@ -41,8 +41,8 @@ export default function VocabularyScreen({navigation,route}: {navigation:any, ro
                 <Text style={styles.translateText}> {item.word[1]}</Text>
                 </View>}
                 {item.example !== undefined && <View style={styles.div}>
-                <Text style={styles.innerText}> {item.example[0]}{item.example[0]}</Text>
-                <Text style={styles.translateText}> {item.example[1]}{item.example[1]}</Text>
+                <Text style={styles.innerText}> {item.example[0]}</Text>
+                <Text style={styles.translateText}> {item.example[1]}</Text>
                 </View>}
             </View>
         )
