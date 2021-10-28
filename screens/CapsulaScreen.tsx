@@ -65,6 +65,14 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
         completed: false,
     });
     const [selectedIsFavorite, set_selectedIsFavorite] = useState(false);
+    var hasLoaded = false;
+
+    // Guarda el listado de capsulas completadas, similar a los favoritos (Utilizado para funcion PUT)
+    //const [completed, setCompleted] = useState<any>([]);
+
+    // Guarda el indice de las capsulas que tienen un progreso distinto a 0. El valor se guarda en la informacion de la capsula. (Usado para funcion PUT)
+    //const [progress, setProgress] = useState<any>([]);
+
 
     // El menú de capsulas mostrará renderedCapsules en el menú. De esta forma la funcion solo se necesita ajustar a esta variable, 
     // y las demás solo almacenaran los datos, cargandose cuando sea necesario.
@@ -94,6 +102,15 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
         // Fijar el tipo de membresia del usuario
         setMembership(route.params.isPremium);
 
+        // Obtencion de las capsulas disponibles en el idioma seleccionado
+        if (!membership) {
+            fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=daily_done')
+                .then(response => { return response.json(); })
+                .then(daily => {
+                    setDailyDone(daily.user.daily_done);
+                })
+        }
+
         fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=level')
             .then(response => { return response.json(); })
             .then(data => {
@@ -102,139 +119,158 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
 
 
         fetch('http://gepartner-app.herokuapp.com/caps?lang=' + lang)
-            .then(response => { return response.json(); })
-            .then(data => {
+        .then(response => { return response.json(); })
+        .then(data => {
             
-                // Indices de las capsulas que pertenecen a cada categoria
-                var capsulasB: any[] = [];
-                var capsulasI: any[] = [];
-                var capsulasA: any[] = [];
+            // Indices de las capsulas que pertenecen a cada categoria
+            var capsulasB:any[] = [];
+            var capsulasI:any[] = [];
+            var capsulasA:any[] = [];
             
-                // Listado de todas las capsulas, con sus datos completos
-                var capsuleDict: any = {};
+            // Listado de todas las capsulas, con sus datos completos
+            var capsuleDict: any = {};
 
-                if (data.capsules.length == 0) {
-                    setAllCapsules(capsuleDict);
-                    return;
-                }
-                // Datos del JSON de capsulas del idioma.
-                data.capsules.forEach((item: any) => {
-                
-                    // Se asignan los valores por defecto para cada capsula
-                    item.favorite = false;
-                    item.completed = false;
-                    item.progress = 0;
-
-                    // Se agregan los datos de la capsula a un diccionario con su id como indice.
-                    capsuleDict[item.id] = item;
-
-                    switch (item.level) {
-                        case 0:
-                            capsulasB.push(item.id);
-                            break;
-                        case 1:
-                            capsulasI.push(item.id);
-                            break;
-                        case 2:
-                            capsulasA.push(item.id);
-                            break;
-                    }
-                });
-                // Se guardan los indices de las capsulas de cada nivel.
-                set_bCapsules(capsulasB);
-                set_iCapsules(capsulasI);
-                set_aCapsules(capsulasA);
+            if (data.capsules.length == 0) {
                 setAllCapsules(capsuleDict);
-
-                // Obtener indice de capsulas favoritas del usuario
-                fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=favorites')
-                    .then(response => { return response.json(); })
-                    .then(favInfo => {
-            
-                        var fav: any[] = [];
-
-                        // Se asignan como favoritas aquellas capsulas marcadas por el usuario
-                        favInfo.user.favorites.forEach((item: any) => {
-                            capsuleDict[item].favorite = true;
-                            fav.push(parseInt(item, 10)); // Guarda el indice de las capsulas marcadas (utilizado para editar el el valor en BD)
-                        });
-                        // Guarda los indices de las favoritas.
-                        set_favCapsules(fav);
-                        setAllCapsules(capsuleDict);
-                    });
+                return;
+            }
+            // Datos del JSON de capsulas del idioma.
+            data.capsules.forEach((item: any) => {
                 
-                // Se obtienen los datos de completitud
-                getCompletion();
+                // Se asignan los valores por defecto para cada capsula
+                item.favorite = false;
+                item.completed = false;
+                item.progress = 0;
+
+                // Se agregan los datos de la capsula a un diccionario con su id como indice.
+                capsuleDict[item.id] = item;
+
+                switch (item.level) {
+                    case 0:
+                        capsulasB.push(item.id);
+                        break;
+                    case 1:
+                        capsulasI.push(item.id);
+                        break;
+                    case 2:
+                        capsulasA.push(item.id);
+                        break;
+                }
             });
-    }, []);
+            // Se guardan los indices de las capsulas de cada nivel.
+            set_bCapsules(capsulasB);
+            set_iCapsules(capsulasI);
+            set_aCapsules(capsulasA);    
+            setAllCapsules(capsuleDict);
+
+            // Se realizan distintos fetch adicionales para las caracteristicas individuales del usuario
+
+            // Obtener indice de capsulas favoritas del usuario
+            fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=favorites')
+                .then(response => { return response.json(); })
+                .then(favInfo => {
+            
+                    var fav: any[] = [];
+
+                    // Se asignan como favoritas aquellas capsulas marcadas por el usuario
+                    favInfo.user.favorites.forEach((item: any) => {
+                        capsuleDict[item].favorite = true;
+                        fav.push(parseInt(item, 10)); // Guarda el indice de las capsulas marcadas (utilizado para editar el el valor en BD)
+                    });
+                    // Guarda los indices de las favoritas.
+                    set_favCapsules(fav);
+                    setAllCapsules(capsuleDict);
+                    hasLoaded = true;
+                });
+
+                // Obtener el listado de capsulas completadas
+            fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=completed')
+                .then(response => { return response.json(); })
+                .then(completionInfo => {
+                    //console.log(completionInfo.user.completed); // Es un array similar a las favoritas
+
+                    var complete: any[] = [];
+
+                    completionInfo.user.completed.forEach((item: any) => {
+                        capsuleDict[item.toString()].completed = true;
+                        complete.push(item); // Guarda el indice de las capsulas terminadas
+                        //console.log(capsuleDict[item.toString()]);
+                    });
+                    // Guarda los indices de las completadas.
+                    //setCompleted(complete);
+                    setAllCapsules(capsuleDict);
+                });
+            
+            
+            // Listado de progreso de las distintas capsulas
+            fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=progress')
+                .then(response => { return response.json(); })
+                .then(progressInfo => {
+
+                    // Toma un string del tipo {id:valor, id:valor} y lo convierte a valores usables por la aplicacion
+                    var progressItems = progressInfo.user.progress.slice(1, -1);
+                    // Se eliminan los { }, y se verifica si aun queda string.
+                    if (progressItems.length != 0) {
+
+                        // Se separa cada elemento
+                        progressItems = progressItems.split(', ')
+                        var progressList: any[] = [];
+                        
+                        progressItems.forEach((element: any) => {
+                            element = element.split(":");
+
+                            capsuleDict[element[0].slice(1,-1)].progress = parseFloat(element[1]);
+                            progressList.push(parseInt(element[0].slice(1,-1), 10));
+                        });
+                        // Guarda los indices de las capsulas con progreso
+                        //setProgress(progressList);*/
+                    }
+                    setAllCapsules(capsuleDict);
+                    //console.log(allCapsules);
+                })
+        });
+    }, [])
 
 
-    // Actualizacion de efectos que corresponden a los datos que el usuario debe tener en refresco
-    // Actualiza completitud y 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
-            // Obtencion de las capsulas disponibles en el idioma seleccionado
-            if (!membership) {
-                fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=daily_done')
+            // Recarga el progreso de las capsulas al volver recargar la pagina desde una 
+            if (hasLoaded) {
+                var capsuleDict = allCapsules;
+
+                fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=completed')
                     .then(response => { return response.json(); })
-                    .then(daily => {
-                        setDailyDone(daily.user.daily_done);
-                    })
-                // Actualiza la completitud al navegar de vuelta a la ventana de capsulas
-                getCompletion();
-            }
-          });
-          return unsubscribe;
-    }, [navigation]);
-
-
-    // Obtiene las capsulas completadas y el porcentaje de completitud de ellas.
-    const getCompletion = () => {
-        var capsuleDict = allCapsules;
-
-        // Obtener el listado de capsulas completadas
-        fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=completed')
-            .then(response => { return response.json(); })
-            .then(completionInfo => {
-                var complete: any[] = [];
-
-                completionInfo.user.completed.forEach((item: any) => {
-                    capsuleDict[item.toString()].completed = true;
-                    complete.push(item); // Guarda el indice de las capsulas terminadas
-                    //console.log(capsuleDict[item.toString()]);
-                });
-                setAllCapsules(capsuleDict);
-            });
-    
-    
-        // Listado de progreso de las distintas capsulas
-        fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=progress')
-            .then(response => { return response.json(); })
-            .then(progressInfo => {
-
-                // Toma un string del tipo {id:valor, id:valor} y lo convierte a valores usables por la aplicacion
-                var progressItems = progressInfo.user.progress.slice(1, -1);
-                // Se eliminan los { }, y se verifica si aun queda string.
-                if (progressItems.length != 0) {
-
-                    // Se separa cada elemento
-                    progressItems = progressItems.split(', ')
-                    var progressList: any[] = [];
-                
-                    progressItems.forEach((element: any) => {
-                        element = element.split(":");
-
-                        capsuleDict[element[0].slice(1, -1)].progress = parseFloat(element[1]);
-                        progressList.push(parseInt(element[0].slice(1, -1), 10));
+                    .then(completionInfo => {
+                        var complete: any[] = [];
+                        completionInfo.user.completed.forEach((item: any) => {
+                            capsuleDict[item.toString()].completed = true;
+                            complete.push(item); // Guarda el indice de las capsulas terminadas
+                        });
+                        setAllCapsules(capsuleDict);
                     });
-                    // Guarda los indices de las capsulas con progreso
-                    //setProgress(progressList);*/
-                }
-                setAllCapsules(capsuleDict);
-                //console.log(allCapsules);
-            })
-    }
+            
+                fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=progress')
+                    .then(response => { return response.json(); })
+                    .then(progressInfo => {
+                        var progressItems = progressInfo.user.progress.slice(1, -1);
+                        if (progressItems.length != 0) {
+                            progressItems = progressItems.split(', ')
+                            var progressList: any[] = [];
+                            progressItems.forEach((element: any) => {
+                                element = element.split(":");
+                                capsuleDict[element[0].slice(1,-1)].progress = parseFloat(element[1]);
+                                progressList.push(parseInt(element[0].slice(1,-1), 10));
+                            });
+                        }
+                        setAllCapsules(capsuleDict);
+                    })
+            }
+        });
+        return unsubscribe;
+    }, [navigation]);
+    
 
+    
     const capsuleLevels = [{
             id: '0',
             levelName: 'Basico',
@@ -411,15 +447,21 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
     const openCapsule = () => {
         // Revision para verificar que el usuario gratis solo puede completar 2 capsulas por dia
         if (!membership) {
-            if (dailyDone < capsuleLimit) {
-              // Envia al usuario a la capsula seleccionada
-              navigation.navigate('VocabularyScreen', { idCapsula: selectedCapsule.id });
-              setCapsuleModal(false);
-              setActivityModal(false);              
-            } else {
-                setAlertMessage("Ya has llegado al límite de capsulas diarias");
-                setAlertModal(true);
-            }      
+            fetch('http://gepartner-app.herokuapp.com/user?uid=' + route.params.cUserId + '&data=daily_done')
+            .then(response => { return response.json(); })
+            .then(daily => {
+                setDailyDone(daily.user.daily_done);
+                console.log(daily.user.daily_done);
+                if (daily.user.daily_done < capsuleLimit) {
+                    // Envia al usuario a la capsula seleccionada
+                    navigation.navigate('VocabularyScreen', { idCapsula: selectedCapsule.id });
+                    setCapsuleModal(false);
+                    setActivityModal(false);
+                } else {
+                    setAlertMessage("Ya has llegado al límite de capsulas diarias");
+                    setAlertModal(true);
+                }
+            });      
         }else { // Si el usuario es premium, se le premite ingresar de forma inmediata.
             navigation.navigate('VocabularyScreen', { idCapsula: selectedCapsule.id });
             setCapsuleModal(false);
