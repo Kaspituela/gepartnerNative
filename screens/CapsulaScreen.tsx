@@ -293,7 +293,7 @@ export default function LanguageScreen({navigation, route}: {navigation: any, ro
             
         } else { // Se mostrará una alerta cuando el usuario no pueda acceder a ellas.
             if (!capsuleModal && !alertModal) { // Condiciones para evitar que la alerta aperzca si se apretan botones rapido
-                setAlertMessage("Primero se deben completar las capsulas" + displayLevel[lvlCapsula-1])
+                setAlertMessage("Primero se deben completar las capsulas " + displayLevel[lvlCapsula-1])
                 setAlertModal(true);   
             }
         }
